@@ -2,7 +2,7 @@
 
 .createFormContainer {
   :global {
-    .ant-form.ant-form-vertical.css-dev-only-do-not-override-m4timi.createForm{
+    .ant-form.ant-form-vertical.css-dev-only-do-not-override-m4timi.createForm {
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -15,23 +15,23 @@
 
     .form-row, .button-form-row {
       display: flex;
-      // justify-content: stretch;
-      width: 80vw;
+      gap: 1rem;
+      width: 100%;
+      justify-content: space-between;
     }
 
     // .ant-form-item.css-dev-only-do-not-override-m4timi {
     //   width: 50%;
     // }
 
-    .ant-form-item-control-input-content span {
-      width: 40vw;
-      min-width: 0;
-    }
+    // .ant-form-item-control-input-content {
+    //   flex-grow: 1;
+    // }
 
-    .buttonNext {
-      font-style: italic;
-      display: flex;
-      justify-self: end;
-    }
+    // .buttonNext {
+    //   font-style: italic;
+    //   display: flex;
+    //   justify-self: end;
+    // }
   }
 }

@@ -27,10 +27,11 @@ const languageOptions = [
 
 const BasicInfomationForm = () => {
   return (
-    <div>
+    <div className='w-full'>
       <HeaderForm headerName="Basic Information" />
       <div className={s.createFormContainer}>
         <Form {...formItemLayout} layout="vertical" className='createForm'>
+        <div className=''>
           <Form.Item label="Title" name="title">
             <Input placeholder='Your course title' />            
           </Form.Item>
@@ -43,8 +44,8 @@ const BasicInfomationForm = () => {
             <Input.TextArea placeholder='Your course description' />
           </Form.Item>
 
-          <div className="form-row">
-            <Form.Item label="Category" name="category" wrapperCol={{xs: { span: 24 }, sm: { span: 22 }}}>
+          <div className="form-row w-full">
+            <Form.Item label="Category" name="category" className='w-full'>
               <Select placeholder='Select a category' suffixIcon={null}>
                 {categoryOptions.map(option => (
                   <Select.Option key={option.value} value={option.value}>
@@ -54,7 +55,7 @@ const BasicInfomationForm = () => {
               </Select>
             </Form.Item>
 
-            <Form.Item label="Language" name="language" wrapperCol={{xs: { span: 24 }, sm: { span: 22 }}}>
+            <Form.Item label="Language" name="language" className='w-full'>
               <Select placeholder='Select a language' suffixIcon={null}>
                 {languageOptions.map(option => (
                   <Select.Option key={option.value} value={option.value}>
@@ -73,6 +74,7 @@ const BasicInfomationForm = () => {
             <Form.Item>
               <Button type="primary" className='buttonNext' style={{ backgroundColor: '#FF6636' }}>Next</Button>
             </Form.Item>
+          </div>
           </div>
         </Form>
       </div>
