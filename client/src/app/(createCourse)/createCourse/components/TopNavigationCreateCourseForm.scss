@@ -1,0 +1,12 @@
+@import "@styles/mixins.scss";
+
+.create-course-form-navbar {
+  .nav-links {
+    .ul {
+      .li {
+        display: inline-block;
+        flex-direction: row;
+      }
+    }
+  }
+}
