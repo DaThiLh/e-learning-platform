@@ -1,0 +1,11 @@
+@import "@styles/mixins.scss";
+
+.headerFormContainer {
+  :global {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.5rem;
+    padding-left: 2rem;
+  }
+}

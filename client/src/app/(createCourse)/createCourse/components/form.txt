@@ -1,0 +1,299 @@
+import React, { useState } from "react";
+import HeaderForm from "./HeaderForm";
+import { Form, Input, Select, Button, Typography } from "antd";
+import styles from "./CurriculumForm.module.scss";
+import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import NavigationButton from "./NavigationButton";
+
+const { TextArea } = Input;
+const { Title } = Typography;
+
+type ItemCardType = {
+	type: "lecture" | "quiz";
+	title: string;
+	description: string;
+};
+
+type SectionType = {
+	title: string;
+	items: ItemCardType[];
+};
+
+type CurriculumFormType = {
+	sections: SectionType[];
+};
+
+interface QuizCardProps {
+	handleBack(): void;
+	handleAdd(): void;
+	setTitle(title: string): void;
+	setDescription(description: string): void;
+}
+
+interface ItemCardProps {
+	item: ItemCardType;
+	index: number;
+	onDelete: () => void;
+}
+
+interface SectionTypeProps {
+	sections: SectionType;
+	index: number;
+	onAddItem: () => void;
+	onDelete: () => void;
+}
+
+interface CurriculumFormProps {
+	curriculum: CurriculumFormType;
+	onAddSection: () => void;
+	onSubmit: (curriculum: CurriculumFormType) => void;
+}
+
+const contentTypes = [
+	{ value: "Video", label: "Video" },
+	{ value: "Article", label: "Article" },
+];
+
+const itemTypes = [
+	{ value: "lecture", label: "Lecture" },
+	{ value: "quiz", label: "Quiz" },
+];
+
+const defaultCurriculum: CurriculumFormType = {
+	sections: [
+		{
+			title: "",
+			items: [
+				{
+					type: "quiz",
+					title: "",
+					description: "Lecture 1 Description",
+				},
+			],
+		},
+	],
+};
+
+const CurriculumForm = ({
+	curriculum = defaultCurriculum,
+	onAddSection,
+	onSubmit,
+}: CurriculumFormProps) => {
+	curriculum.sections = curriculum.sections || [];
+
+	return (
+		<div className={styles.curriculumFormContainer}>
+			<HeaderForm headerName="Curriculum Form" />
+
+			<hr className="mb-2" />
+
+			<div>
+				<Form layout="vertical">
+					<div className="flex flex-col justify-center items-center p-2">
+						{curriculum.sections.map((section, index) => (
+							<SectionCard
+								key={index}
+								sections={section}
+								index={index}
+								onDelete={() => {}}
+								onAddItem={() => {}}
+							/>
+						))}
+					</div>
+				</Form>
+			</div>
+
+			<NavigationButton leftButton="Previous" rightButton="Next" />
+		</div>
+	);
+};
+
+const SectionCard = (sectionTypeProps: SectionTypeProps) => {
+	const { sections, index, onAddItem, onDelete } = sectionTypeProps;
+
+	return (
+		<div className={styles.sectionContainer}>
+			<div className="flex flex-row space-x-2">
+				<Title level={4}>{`Section ${index + 1}`}</Title>
+				<Form.Item>
+					<Input placeholder="Section Title" />
+				</Form.Item>
+				<Button className="btn-menu-section" onClick={onDelete}>
+					<DeleteOutlined />
+				</Button>
+			</div>
+			{sections.items.map((item, index) => (
+				<ItemCard
+					key={index}
+					item={item}
+					index={index}
+					onDelete={() => {}}
+				/>
+			))}
+		</div>
+	);
+};
+
+
+const ItemCard: React.FC<ItemCardProps> = ({ item, index, onDelete }) => {
+  const [selectedItemType, setSelectedItemType] = useState<string | null>(
+    null
+  );
+  const [title, setTitle] = useState<string>(item.title);
+  const [description, setDescription] = useState<string>(item.description);
+
+  const handleAdd = () => {
+    console.log("handleAdd called with values:");
+    console.log("selectedItemType:", selectedItemType);
+    console.log("title:", title);
+    console.log("description:", description);
+  };
+
+  return (
+    <div className={styles.itemContainer}>
+      {!selectedItemType && !title && (
+        <Button onClick={() => setSelectedItemType("chooseItemType")}>
+          Curriculum Item
+        </Button>
+      )}
+
+      {selectedItemType && selectedItemType === "chooseItemType" && (
+        <ItemTypeButton
+          handleBack={() => setSelectedItemType(selectedItemType)}
+          handleAdd={handleAdd}
+          setTitle={setTitle}
+          setDescription={setDescription}
+        />
+      )}
+
+      {title && (
+        <>
+          <div className="flex flex-row space-x-2 items-start">
+            <Title level={5} className="mt-1">
+              {selectedItemType === "quiz"
+                ? `Quiz ${index + 1}`
+                : `Lecture ${index + 1}` 	
+							}
+            </Title>
+            <Form.Item>
+              <Input
+                placeholder="Title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+            </Form.Item>
+            <Button className="btn-menu-lecture" onClick={onDelete}>
+              <DeleteOutlined />
+            </Button>
+          </div>
+          <Select
+            placeholder={"Content"}
+            className={styles.selectedButton}
+            value={item.type}
+          >
+            {contentTypes.map((option) => (
+              <Select.Option
+                key={option.label}
+                value={option.value}
+                className={styles.selectedButtonItem}
+              >
+                {option.label}
+              </Select.Option>
+            ))}
+          </Select>
+        </>
+      )}
+    </div>
+  );
+};
+
+const ItemTypeButton = ({
+	handleBack,
+	handleAdd,
+	setTitle,
+	setDescription,
+}: {
+	handleBack: () => void;
+	handleAdd: () => void;
+	setTitle: (title: string) => void;
+	setDescription: (description: string) => void;
+}) => {
+	const [selectedItemType, setSelectedItemType] = useState<string | null>(
+		null
+	);
+
+	return (
+		<div className="flex flex-row space-x-4">
+			{!selectedItemType && (
+				<Button onClick={() => setSelectedItemType("lecture")}>
+					Lecture
+				</Button>
+			)}
+			{!selectedItemType && (
+				<Button onClick={() => setSelectedItemType("quiz")}>
+					Quiz
+				</Button>
+			)}
+			{selectedItemType === "lecture" && <div>Lecture Component</div>}
+			{selectedItemType === "quiz" && (
+				<QuizCard
+					handleBack={handleBack}
+					handleAdd={handleAdd}
+					setTitle={setTitle}
+					setDescription={setDescription}
+				/>
+			)}
+		</div>
+	);
+};
+
+const QuizCard: React.FC<QuizCardProps> = ({
+	handleBack,
+	handleAdd,
+	setTitle,
+	setDescription,
+}) => {
+	const [title, setTitleState] = useState<string>("");
+	const [description, setDescriptionState] = useState<string>("");
+
+	const onFinish = () => {
+		setTitle(title);
+		setDescription(description);
+		handleAdd();
+		console.log("onFinish called with :", { title, description });
+	};
+
+	return (
+		<div className={styles.quizCardContainer}>
+			<div>
+				<div className="flex justify-items-center justify-between gap-2 pb-2">
+					<Title level={5}>New Quiz:</Title>
+					<div className="flex flex-col w-4/5 gap-2">
+						<Input
+							name="title"
+							placeholder="Enter a title"
+							value={title}
+							onChange={(e) => setTitleState(e.target.value)}
+							allowClear
+						/>
+						<Input.TextArea
+							placeholder="Enter a description"
+							value={description}
+							onChange={(e) => setDescriptionState(e.target.value)}
+							allowClear
+						/>
+					</div>
+				</div>
+
+				<div className="flex justify-end gap-2">
+					<Button onClick={handleBack}>Cancel</Button>
+					<Button type="primary" onClick={onFinish}>
+						Add <PlusOutlined />
+					</Button>
+				</div>
+			</div>
+		</div>
+	);
+};
+
+export default CurriculumForm;

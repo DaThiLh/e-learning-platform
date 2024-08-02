@@ -1,0 +1,56 @@
+@import "@styles/mixins.scss";
+
+.advanceInformationFormContainer {
+	:global {
+		.form-row,
+		.button-form-row {
+			display: flex;
+			width: 100%;
+			justify-content: space-between;
+		}
+
+		.ant-btn.css-dev-only-do-not-override-m4timi.ant-btn-default.ant-btn-dangerous {
+			width: 15%;
+			border-color: theme("colors.orange");
+			color: theme("colors.orange");
+			@media(max-width: 1024px) {
+				width: 10%;
+			}
+		}
+
+		.ant-btn.css-dev-only-do-not-override-m4timi.ant-btn-primary.ant-btn-dangerous {
+			width: 15%;
+			background-color: theme("colors.orange");
+		}
+
+		.text-btn-add-new {
+			@media(max-width: 1024px) {
+				display: none;
+			}
+		}
+
+		#input-text-and-btn {
+			display: flex;
+			width: 45vw;
+
+			@media (max-width: 1024px) {
+				width: 60vw;
+			}
+		}
+	}
+}
+
+.buttonDeleteItem {
+	:global {
+		.ant-btn.css-dev-only-do-not-override-m4timi.ant-btn-default {
+			border-style: none;
+			box-shadow: none;
+			color: theme("colors.orange");
+
+			&:hover {
+				opacity: 0.8;
+				color: theme("colors.orange");
+			}
+		}
+	}
+}

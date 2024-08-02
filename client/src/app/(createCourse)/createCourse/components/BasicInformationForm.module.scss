@@ -1,37 +1,41 @@
 @import "@styles/mixins.scss";
 
-.createFormContainer {
-  :global {
-    .ant-form.ant-form-vertical.css-dev-only-do-not-override-m4timi.createForm {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
+.basicInformationFormContainer {
+	:global {
+		.ant-form.ant-form-vertical.css-dev-only-do-not-override-m4timi.createForm {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+		}
 
-    .ant-form-item-control-input-content input, textarea {
-      width: 80vw;
-    }
+		.ant-form-item-control-input-content input {
+			width: 40vw;
+			@media (max-width: 1024px) {
+				width: 50vw;
+			}
+		}
 
-    .form-row, .button-form-row {
-      display: flex;
-      gap: 1rem;
-      width: 100%;
-      justify-content: space-between;
-    }
+		.ant-form-item-control-input-content textarea {
+			width: 100%;
+		}
 
-    // .ant-form-item.css-dev-only-do-not-override-m4timi {
-    //   width: 50%;
-    // }
+		.form-row{
+			display: flex;
+			gap: 1rem;
+			width: 100%;
+			justify-content: space-between;
+		}
 
-    // .ant-form-item-control-input-content {
-    //   flex-grow: 1;
-    // }
+		.ant-btn.css-dev-only-do-not-override-m4timi.ant-btn-default.ant-btn-dangerous {
+			width: 15%;
+			border-color: theme("colors.orange");
+			color: theme("colors.orange");
+		}
 
-    // .buttonNext {
-    //   font-style: italic;
-    //   display: flex;
-    //   justify-self: end;
-    // }
-  }
+		.ant-btn.css-dev-only-do-not-override-m4timi.ant-btn-primary.ant-btn-dangerous {
+			width: 15%;
+			background-color: theme("colors.orange");
+		}
+	}
 }

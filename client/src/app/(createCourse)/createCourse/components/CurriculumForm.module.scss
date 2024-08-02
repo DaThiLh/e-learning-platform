@@ -1,0 +1,168 @@
+.curriculumFormContainer {
+	:global {
+		width: 50vw;
+		padding: 1rem;
+		@media (max-width: 1024px) {
+			width: 65vw;
+		}
+
+		.ant-input.ant-input-outlined {
+		  border: none;
+		  border-bottom: 1px solid #d9d9d9;
+		  border-radius: 0;
+		  width: 15vw;
+		  background-color: theme("colors.gray.light");
+
+		  &:focus {
+		    outline: none;
+		    box-shadow: none;
+		  }
+		}
+	}
+}
+
+.sectionContainer {
+	:global {
+		background-color: theme("colors.gray.light");
+		width: 100%;
+		padding: 1rem;
+
+		.btn-menu-section {
+			border: none;
+			background-color: theme("colors.gray.light");
+			outline: none;
+			box-shadow: none;
+
+			&:hover {
+				opacity: 0.8;
+				color: theme("colors.orange");
+			}
+		}
+	}
+}
+
+.itemContainer {
+	:global {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		background-color: white;
+		padding: 0.5rem;
+
+		.ant-input.ant-input-outlined {
+			width: 15vw;
+			background-color: white;
+		}
+
+		.ant-select-selector {
+			border: none !important;
+			border-color:  #ffeee8 !important;
+		}
+
+		.ant-btn.ant-btn-default.btn-menu-lecture {
+			border: none;
+			background-color: white;
+			outline: none;
+			box-shadow: none;
+
+			&:hover {
+				opacity: 0.8;
+				color: theme("colors.orange");
+			}
+		}
+	}
+}
+
+.selectedButton {
+	:global {
+		.ant-select-selector {
+			border: none !important;
+			outline: none;
+			box-shadow: none;
+			background-color:  #ffeee8 !important;
+			color: theme("colors.orange") !important;
+		}
+
+		.ant-select-selection-placeholder {
+			color: theme("colors.orange") !important;
+		}
+	}
+}
+
+.buttonAddItem {
+  width: fit-content;
+
+  .ant-select-selector {
+    border-color: theme("colors.orange");
+  }
+}
+
+.buttonAddSection {
+  .ant-btn.ant-btn-primary.ant-btn-dangerous {
+    width: 100%;
+    color: theme("colors.orange");
+    background-color: #ffeee8;
+
+    &:hover {
+      background-color: theme("colors.orange");
+      color: white;
+    }
+  }
+}
+
+.quizCardContainer { 
+	:global {
+		width: 40vw;
+
+		.ant-input.css-dev-only-do-not-override-m4timi.ant-input-outlined {
+			width: 100%;
+		}
+
+		.ant-btn.css-dev-only-do-not-override-m4timi.ant-btn-primary{
+			background-color: theme("colors.orange");
+
+			&:hover {
+				opacity: 0.9;
+				background-color: theme("colors.orange");
+
+			}
+		}
+	}
+}
+
+.quizItemCardContainer {
+	:global {
+		width: 50vw;
+
+		.item {
+			background-color: theme("colors.gray.light");
+		}
+		.question {
+			display: flex;
+			flex-direction: column;
+		}
+
+		.answer {
+			display: flex;
+			flex-direction: column;
+			padding-left: 5px;
+			gap: 0.75rem;
+
+			.ant-input.css-dev-only-do-not-override-m4timi {
+				width: 30vw;
+				@media (max-width: 1024px) {
+					width: 40vw;
+				}
+			}
+
+			.ant-input-affix-wrapper.css-dev-only-do-not-override-m4timi.ant-input-outlined.w-2 {
+				width: 90%;
+			}
+
+		}
+
+		@media (min-width: 1440px) {
+			width: 40vw;
+		}
+	}
+}

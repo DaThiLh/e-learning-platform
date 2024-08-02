@@ -1,0 +1,10 @@
+@import "@styles/mixins.scss";
+
+.topNavBarContainer {
+  :global {
+    
+    .ant-menu-title-content:hover {
+      color: theme("colors.orange");
+    }
+  }
+}

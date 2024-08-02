@@ -1,0 +1,8 @@
+@import "@styles/mixins.scss";
+
+.publishCourseFormContainer {
+  width: 45vw;
+  @media (max-width: 1024px) {
+    width: 60vw;
+  }
+}
