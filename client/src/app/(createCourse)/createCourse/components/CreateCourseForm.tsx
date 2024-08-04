@@ -1,30 +1,29 @@
 "use client";
 import React, { useState } from "react";
 import { Menu } from "antd";
-import s from "./CreateCourseForm.module.scss"
-import { set } from "zod";
+import styles from "./CreateCourseForm.module.scss"
 import BasicInfomationForm from "./BasicInfomationForm";
 import AdvanceInformationForm from "./AdvanceInformationForm";
 import CurriculumForm from "./CurriculumForm";
 import PublishCourseForm from "./PublishCourseForm";
 
 const items = [
-  {
-    label: "Basic Information",
-    key: "basic-information",
-  },
-  {
-    label: "Advance Information",
-    key: "advance-information",
-  },
-  {
-    label: "Curriculum",
-    key: "curriculum",
-  },
-  {
-    label: "Publish Course",
-    key: "publish-course",
-  },
+	{
+		label: "Basic Information",
+		key: "basic-information",
+	},
+	{
+		label: "Advance Information",
+		key: "advance-information",
+	},
+	{
+		label: "Curriculum",
+		key: "curriculum",
+	},
+	{
+		label: "Publish Course",
+		key: "publish-course",
+	},
 ];
 
 const CreateCourseForm = () => {
@@ -35,18 +34,18 @@ const CreateCourseForm = () => {
 	}
 
 	return (
-		<div className={s.topNavBarContainer}>
+		<div className={styles.topNavBarContainer}>
 			<Menu mode="horizontal" items={items} onClick={handleClick} selectedKeys={[selectedKey]}>
 				{
 					items.map((item) => (
 						<Menu.Item key={item.key}>{item.label}</Menu.Item>
 					))
-				}	
+				}
 			</Menu>
-			{ selectedKey === "basic-information" && <BasicInfomationForm /> }
-			{ selectedKey === "advance-information" && <AdvanceInformationForm /> }
-			{ selectedKey === "curriculum" && <CurriculumForm /> }
-			{ selectedKey === "publish-course" && <PublishCourseForm /> }
+			{selectedKey === "basic-information" && <BasicInfomationForm />}
+			{selectedKey === "advance-information" && <AdvanceInformationForm />}
+			{selectedKey === "curriculum" && <CurriculumForm />}
+			{selectedKey === "publish-course" && <PublishCourseForm />}
 		</div>
 	);
 };
