@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
 import HeaderForm from "./HeaderForm";
-import { Form, Input, Button, Typography, Radio } from "antd";
+import { Form, Input, Button, Typography, Radio, message } from "antd";
 import styles from "./CurriculumForm.module.scss";
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import NavigationButton from "./NavigationButton";
 
-const { TextArea } = Input;
 const { Title } = Typography;
 
 type QuizItemType = {
@@ -15,7 +14,7 @@ type QuizItemType = {
 };
 
 type ItemCardType = {
-	type: "lecture" | "quiz";
+	type: "lecture" | "quiz" | "";
 	title: string;
 	description: string;
 };
@@ -59,16 +58,15 @@ interface ItemCardProps {
 }
 
 interface SectionTypeProps {
-	sections: SectionType;
+	section: SectionType;
 	index: number;
-	onAddItem: () => void;
 	onDelete: () => void;
 }
 
 interface CurriculumFormProps {
-	curriculum: CurriculumFormType;
+	curriculumForm: CurriculumFormType;
 	onAddSection: () => void;
-	onSubmit: (curriculum: CurriculumFormType) => void;
+	onSubmit: (curriculumForm: CurriculumFormType) => void;
 }
 
 interface ItemTypeProps {
@@ -89,14 +87,11 @@ const itemTypes = [
 	{ value: "quiz", label: "Quiz" },
 ];
 
-const defaultItemQuiz: QuizItemType = {
+const defaultItemQuiz = (): QuizItemType => ({
 	question: "",
-	answer: [
-		["", "", "", ""],
-		["", "", "", ""],
-	],
+	answer: [["", "", "", ""], ["", "", "", ""]],
 	correctAnswer: "",
-};
+});
 
 const defaultCurriculum: CurriculumFormType = {
 	sections: [
@@ -114,10 +109,20 @@ const defaultCurriculum: CurriculumFormType = {
 };
 
 const CurriculumForm = ({
-	curriculum = defaultCurriculum,
+	curriculumForm = defaultCurriculum,
 	onAddSection,
 	onSubmit,
 }: CurriculumFormProps) => {
+	const [sectionsInForm, setSections] = useState<SectionType[]>(curriculumForm.sections);
+
+	const handleAddSection = () => {
+		const newSection: SectionType = {
+			title: "",
+			items: [],
+		};
+		setSections([...sectionsInForm, newSection]);
+	};
+
 	return (
 		<div className={styles.curriculumFormContainer}>
 			<HeaderForm headerName="Curriculum Form" />
@@ -125,15 +130,20 @@ const CurriculumForm = ({
 			<div>
 				<Form layout="vertical">
 					<div className="flex flex-col justify-center items-center p-2">
-						{curriculum.sections.map((section, index) => (
-							<SectionCard
-								key={index}
-								sections={section}
-								index={index}
-								onAddItem={() => { }}
-								onDelete={() => { }}
-							/>
+						{sectionsInForm.map((section, index) => (
+							<>
+								<SectionCard
+									key={index}
+									section={section}
+									index={index}
+									onDelete={() => { }}
+								/>
+								<br />
+							</>
 						))}
+						<Button className="btn-add-section" onClick={handleAddSection}>
+							Section <PlusOutlined />
+						</Button>
 					</div>
 				</Form>
 			</div>
@@ -142,36 +152,49 @@ const CurriculumForm = ({
 	);
 };
 
-const SectionCard = (sectionTypeProps: SectionTypeProps) => {
-	const { sections, index, onAddItem, onDelete } = sectionTypeProps;
+const SectionCard = ({ section, index, onDelete }: SectionTypeProps) => {
+	const [itemsInSection, setItemsInSection] = useState<ItemCardType[]>([]);
+
+	const handleAddItem = () => {
+		const newItemCard: ItemCardType = {
+			type: "",
+			title: "",
+			description: "",
+		};
+		setItemsInSection([...itemsInSection, newItemCard]);
+	}
 
 	return (
 		<div className={styles.sectionContainer}>
-			<div className="flex flex-row space-x-2">
+			<div className="flex flex-row space-x-2 pb-2">
 				<Title level={4}>{`Section ${index + 1}`}</Title>
-				<Form.Item>
-					<Input placeholder="Section Title" />
-				</Form.Item>
+				<Input placeholder="Section Title" />
 				<Button className="btn-menu-section" onClick={onDelete}>
 					<DeleteOutlined />
 				</Button>
 			</div>
-			{sections.items.map((item, index) => (
-				<ItemCard
-					key={index}
-					item={item}
-					index={index}
-					onDelete={() => { }}
-				/>
+			{itemsInSection.map((item, index) => (
+				<>
+					<div className="pb-2">
+						<ItemCard
+							key={index}
+							item={item}
+							index={index}
+							onDelete={() => { }}
+						/>
+					</div>
+				</>
 			))}
+			<Button onClick={handleAddItem} className="btn-add-item">
+				Curriculum Item
+				<PlusOutlined />
+			</Button>
 		</div>
 	);
 };
 
 const ItemCard = ({ item, index, onDelete }: ItemCardProps) => {
-	const [selectedItemType, setSelectedItemType] = useState<string | null>(
-		null
-	);
+	const [selectedItemType, setSelectedItemType] = useState<string | null>("chooseItemTyp");
 	const [title, setTitle] = useState<string>(item.title);
 	const [description, setDescription] = useState<string>(item.description);
 
@@ -188,13 +211,7 @@ const ItemCard = ({ item, index, onDelete }: ItemCardProps) => {
 
 	return (
 		<div className={styles.itemContainer}>
-			{/* this code show options to choose item type: lecture or quiz */}
-			{!selectedItemType && (
-				<Button onClick={() => setSelectedItemType("chooseItemType")}>
-					Curriculum Item
-				</Button>
-			)}
-			{selectedItemType && selectedItemType === "chooseItemType" && (
+			{selectedItemType === "chooseItemTyp" && (
 				<ItemType
 					handleBack={() => setSelectedItemType(null)}
 					handleAdd={handleAdd}
@@ -204,24 +221,23 @@ const ItemCard = ({ item, index, onDelete }: ItemCardProps) => {
 				/>
 			)}
 
-			<div className="flex flex-col">
-				{(selectedItemType === "quiz" || selectedItemType === "lecture") && (
-					<>
+			{(selectedItemType === "quiz" || selectedItemType === "lecture") && (
+				<>
+					<div className="flex flex-col w-full">
+
 						<div className="flex flex-row space-x-2 items-start">
 							<Title level={5} className="mt-1">
 								{selectedItemType === "quiz"
 									? `Quiz ${index + 1}`
 									: `Lecture ${index + 1}`}
 							</Title>
-							<Form.Item>
-								<Input
-									placeholder="Title"
-									value={title}
-									onChange={(e) => setTitle(e.target.value)}
-								/>
-							</Form.Item>
+							<Input
+								placeholder="Title"
+								value={title}
+								onChange={(e) => setTitle(e.target.value)}
+							/>
 							<Button
-								className="btn-menu-lecture"
+								className="btn-delete-quiz"
 								onClick={onDelete}
 							>
 								<DeleteOutlined />
@@ -244,87 +260,147 @@ const ItemCard = ({ item, index, onDelete }: ItemCardProps) => {
           </Select> */}
 						{selectedItemType === "quiz" && (
 							<ItemsInQuizCard
-								quizzes={[defaultItemQuiz]}
+								quizzes={[defaultItemQuiz()]}
 							/>
 						)}
-					</>
-				)}
-			</div>
-		</div>
-	);
-};
-
-const ItemsInQuizCard = ({
-	quizzes
-}: ItemsInQuizCardProps) => {
-	const [listOfQuizs, setQuizs] = useState<QuizItemType[]>([defaultItemQuiz]);
-	const [showableQuizItem, setShowableQuizItem] = useState<boolean>(false);
-	const [currentQuizItem, setCurrentQuizItem] = useState<QuizItemType>(defaultItemQuiz);
-
-	const handleAddQuizItem = () => {
-		setQuizs([...listOfQuizs, defaultItemQuiz]);
-	};
-
-	return (
-		<div>
-			{showableQuizItem ? (
-				<>
-					<div className="flex flex-col">
-						{listOfQuizs.map((quizItem, index) => (
-							<Quiz_ItemCard
-								key={index}
-								question={quizItem.question}
-								setQuestion={(value: string) =>
-									setCurrentQuizItem({
-										...currentQuizItem,
-										question: value,
-									})
-								}
-								answer={quizItem.answer[0]}
-								setAnswer={(value: string[]) =>
-									setCurrentQuizItem({
-										...currentQuizItem,
-										answer: [value, quizItem.answer[1]],
-									})
-								}
-								explanation={quizItem.answer[1]}
-								setExplanation={(value: string[]) =>
-									setCurrentQuizItem({
-										...currentQuizItem,
-										answer: [quizItem.answer[0], value],
-									})
-								}
-								correctAnswer={quizItem.correctAnswer}
-								setCorrectAnswer={(value: string) =>
-									setCurrentQuizItem({
-										...currentQuizItem,
-										correctAnswer: value,
-									})
-								}
-							/>
-						))}
 					</div>
-					<br />
-					<div className="flex justify-between">
-						<Button
-							type="primary"
-							onClick={handleAddQuizItem}
-						>
-							Add Quiz Item <PlusOutlined />
-						</Button>
-					</div>
+
 				</>
-			) : (
-				<Button
-					type="primary"
-					onClick={() => setShowableQuizItem(true)}
-				>
-					Add Quiz Item <PlusOutlined />
-				</Button>
 			)}
 		</div>
 	);
 };
+
+const ItemsInQuizCard = ({ quizzes }: ItemsInQuizCardProps) => {
+	const [listOfQuizs, setQuizs] = useState<QuizItemType[]>([defaultItemQuiz()]);
+	const [showableQuizItem, setShowableQuizItem] = useState<boolean>(false);
+	const [saveSuccess, setSaveSuccess] = useState<boolean>(false);
+
+	useEffect(() => {
+		if (saveSuccess) {
+			setShowableQuizItem(false);
+		}
+	}, [saveSuccess]);
+
+	const handleAddQuizItem = () => {
+		setQuizs([...listOfQuizs, defaultItemQuiz()]);
+	};
+
+	const saveAllItemsInQuiz = () => {
+		console.log("Save all items in quiz");
+		console.log(listOfQuizs);
+
+		let indexItem: number = 0;
+
+		for (let item of listOfQuizs) {
+			if (item.question === "") {
+				message.error(`Please fill question ${indexItem + 1}`);
+				return;
+			}
+
+			let hasCorrectAnswer: boolean = false;
+			let indexAnswer: number = 0;
+			for (let answer of item.answer[0]) {
+				if (answer === "") {
+					message.error(`Please fill answer ${indexAnswer + 1} in question ${indexItem + 1}`);
+					return;
+				}
+				if (item.correctAnswer === `answer-${indexAnswer}`) {
+					hasCorrectAnswer = true;
+				}
+				indexAnswer++;
+			}
+
+			if (!hasCorrectAnswer) {
+				message.error(`Please select correct answer in question ${indexItem + 1}`);
+				return;
+			}
+			indexItem++;
+		}
+
+		message.success("All questions are filled");
+		setSaveSuccess(true);
+	};
+
+	const setQuestionInItem = (index: number, value: string) => {
+		const newQuizs = [...listOfQuizs];
+		newQuizs[index].question = value;
+		setQuizs(newQuizs);
+	};
+
+	const setAnswerInItem = (index: number, value: string[]) => {
+		const newQuizs = [...listOfQuizs];
+		newQuizs[index].answer[0] = value;
+		setQuizs(newQuizs);
+	};
+
+	const setExplanationInItem = (index: number, value: string[]) => {
+		const newQuizs = [...listOfQuizs];
+		newQuizs[index].answer[1] = value;
+		setQuizs(newQuizs);
+	};
+
+	const setCorrectAnswerInItem = (index: number, value: string) => {
+		const newQuizs = [...listOfQuizs];
+		newQuizs[index].correctAnswer = value;
+		setQuizs(newQuizs);
+	};
+
+	return (
+		<div className={styles.ItemsInQuizContainer}>
+			{showableQuizItem ? (
+				<>
+					<div className="flex flex-col w-full">
+						{listOfQuizs.map((quizItem, index) => (
+							<Quiz_ItemCard
+								key={index}
+								question={quizItem.question}
+								setQuestion={(value: string) => setQuestionInItem(index, value)}
+								answer={quizItem.answer[0]}
+								setAnswer={(value: string[]) => setAnswerInItem(index, value)}
+								explanation={quizItem.answer[1]}
+								setExplanation={(value: string[]) => setExplanationInItem(index, value)}
+								correctAnswer={quizItem.correctAnswer}
+								setCorrectAnswer={(value: string) => setCorrectAnswerInItem(index, value)}
+							/>
+						))}
+					</div>
+					<div className="flex justify-between w-full px-2 mt-4">
+						<Button
+							type="primary"
+							onClick={handleAddQuizItem}
+						>
+							Add Question <PlusOutlined />
+						</Button>
+						<Button
+							type="primary"
+							onClick={saveAllItemsInQuiz}
+							className="btn-save"
+						>
+							Save
+						</Button>
+					</div>
+				</>
+			) : (
+				<div className="flex items-center justify-between">
+					<Button
+						type="primary"
+						onClick={() => {
+							setShowableQuizItem(true);
+							if (saveSuccess === true) {
+								setSaveSuccess(false);
+							}
+						}}
+					>
+						{saveSuccess === true && <span>Edit Question</span>}
+						{saveSuccess === false && <span>Add Question <PlusOutlined /></span>}
+					</Button>
+				</div>
+			)}
+		</div>
+	);
+};
+
 
 const ItemType = ({
 	handleBack,
@@ -336,13 +412,15 @@ const ItemType = ({
 	const [selectedItemType, setSelectedItemType] = useState<string | null>(null);
 
 	return (
-		<div className="flex flex-row space-x-4">
+		<div className={"flex gap-2 w-full"}>
 			{!selectedItemType && (
 				<>
 					<Button onClick={() => setSelectedItemType("lecture")}>
+						<PlusOutlined />
 						Lecture
 					</Button>
 					<Button onClick={() => setSelectedItemType("quiz")}>
+						<PlusOutlined />
 						Quiz
 					</Button>
 				</>
@@ -351,15 +429,13 @@ const ItemType = ({
 			{selectedItemType === "lecture" && <div>Lecture Component</div>}
 
 			{selectedItemType === "quiz" && (
-				<div>
-					<Quiz_TitleCard
-						handleBack={handleBack}
-						handleAdd={handleAdd}
-						setTitle={setTitle}
-						setDescription={setDescription}
-						onSendItemType={onSendItemType}
-					/>
-				</div>
+				<Quiz_TitleCard
+					handleBack={handleBack}
+					handleAdd={handleAdd}
+					setTitle={setTitle}
+					setDescription={setDescription}
+					onSendItemType={onSendItemType}
+				/>
 			)}
 		</div>
 	);
@@ -385,9 +461,9 @@ const Quiz_TitleCard = ({
 
 	return (
 		<div className={styles.quizTitleCardContainer}>
-			<div className="flex justify-items-center justify-between gap-2 pb-2">
-				<Title level={5}>New Quiz:</Title>
-				<div className="flex flex-col w-4/5 gap-2">
+			<div className="content">
+				<Title level={5} className="w-1/4">New Quiz:</Title>
+				<div className="flex flex-col w-4/5 gap-1">
 					<Input
 						name="title"
 						placeholder="Enter a title"
@@ -403,7 +479,7 @@ const Quiz_TitleCard = ({
 					/>
 				</div>
 			</div>
-			<div className="flex flex-row justify-end gap-2">
+			<div className="flex flex-row justify-end gap-4">
 				<Button onClick={handleBack}>Cancel</Button>
 				<Button type="primary" onClick={onFinish}>
 					Add <PlusOutlined />
@@ -423,111 +499,90 @@ const Quiz_ItemCard = ({
 	setExplanation,
 	setCorrectAnswer,
 }: Quiz_ItemCardProps) => {
-	const [questionValue, setQuestionValue] = useState<string>(question);
-	const [answerValue, setAnswerValue] = useState<string[]>(answer);
-	const [explanationValue, setExplanationValue] = useState<string[]>(explanation);
-	const [correctAnswerValue, setCorrectAnswerValue] = useState<string>(correctAnswer);
-
-	useEffect(() => {
-		setQuestion(questionValue);
-	}, [questionValue, setQuestion]);
-
-	useEffect(() => {
-		setAnswer(answerValue);
-	}, [answerValue, setAnswer]);
-
-	useEffect(() => {
-		setExplanation(explanationValue);
-	}, [explanationValue, setExplanation]);
-
-	useEffect(() => {
-		setCorrectAnswer(correctAnswerValue);
-	}, [correctAnswerValue, setCorrectAnswer]);
 
 	const handleAnswerChange = (index: number, value: string) => {
-		const newAnswers = [...answerValue];
+		const newAnswers = [...answer];
 		newAnswers[index] = value;
-		setAnswerValue(newAnswers);
+		setAnswer(newAnswers);
 	};
 
 	const handleExplanationChange = (index: number, value: string) => {
-		const newExplanations = [...explanationValue];
+		const newExplanations = [...explanation];
 		newExplanations[index] = value;
-		setExplanationValue(newExplanations);
+		setExplanation(newExplanations);
+		setExplanation(newExplanations);
 	};
 
 	const addAnswer = () => {
-		setAnswerValue([...answerValue, ""]);
-		setExplanationValue([...explanationValue, ""]);
+		const newAnswers = [...answer, ""];
+		const newExplanations = [...explanation, ""];
+		setAnswer(newAnswers);
+		setExplanation(newExplanations);
 	};
 
 	return (
-		  <div className={styles.quizItemCardContainer}>
-			<Form layout="vertical">
-				<div className="item">
-					<div className="question">
-						<Title level={5}>Question</Title>
+		<div className={styles.quizItemCardContainer}>
+			<div className="item">
+				<div className="question">
+					<Title level={5}>Question</Title>
+					<Form.Item
+						rules={[{ required: true, message: 'Question is required' }]}
+					>
 						<Input
 							placeholder="Question"
-							value={questionValue}
-							onChange={(e) => setQuestionValue(e.target.value)}
+							value={question}
+							onChange={(e) => setQuestion(e.target.value)}
 							showCount
-							maxLength={160}
+							maxLength={600}
 						/>
+					</Form.Item>
+				</div>
+				<div className="answer">
+					<div className="flex justify-between pb-2">
+						<Title level={5}>Answer</Title>
+						<Button onClick={addAnswer}>
+							Add <PlusOutlined />
+						</Button>
 					</div>
-					<div className="answer">
-						<div className="flex justify-between">
-							<Title level={5}>Answer</Title>
-							<Button onClick={addAnswer}>
-								Add <PlusOutlined />
-							</Button>
-						</div>
-						<Radio.Group
-							value={correctAnswerValue}
-							onChange={(e) => setCorrectAnswerValue(e.target.value)}
-						>
-							{answerValue.map((choice, index) => (
-								<Radio
-									key={index}
-									value={`answer-${index}`}
-              		className="radio mb-4" 
-								>
-									<div className="answerOption">
+					<Radio.Group
+						value={correctAnswer}
+						onChange={(e) => setCorrectAnswer(e.target.value)}
+					>
+						{answer.map((choice, index) => (
+							<div key={index} className="flex items-start w-full">
+								<Radio value={`answer-${index}`} className="mr-2" />
+								<div className="flex flex-col w-full pb-2">
+									<Form.Item
+										rules={[{ required: true, message: 'Answer is required' }]}
+									>
 										<Input
 											placeholder={`Answer ${index + 1}`}
 											allowClear
 											showCount
-											maxLength={160}
+											maxLength={600}
 											value={choice}
-											onChange={(e) =>
-												handleAnswerChange(
-													index,
-													e.target.value
-												)
-											}
+											onChange={(e) => handleAnswerChange(index, e.target.value)}
 										/>
+									</Form.Item>
+									<Form.Item
+									>
 										<Input
-											placeholder={`Explanation ${index + 1
-												} (optional)`}
+											placeholder={`Explanation ${index + 1} (optional)`}
 											allowClear
 											showCount
-											maxLength={160}
-											className="w-2"
-											value={explanationValue[index]}
+											maxLength={600}
+											value={explanation[index]}
 											onChange={(e) =>
-												handleExplanationChange(
-													index,
-													e.target.value
-												)
+												handleExplanationChange(index, e.target.value)
 											}
 										/>
-									</div>
-								</Radio>
-							))}
-						</Radio.Group>
-					</div>
+									</Form.Item>
+								</div>
+							</div>
+						))}
+					</Radio.Group>
 				</div>
-			</Form>
+			</div>
 		</div>
 	);
 };
