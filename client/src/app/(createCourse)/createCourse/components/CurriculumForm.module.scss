@@ -197,6 +197,34 @@
 	}
 }
 
+.ItemsInLectureContainer {
+	:global {
+		.ant-select-selector {
+			border: 1px solid;
+			background: #FFEEE8 !important;
+		}
+
+		.ant-select-selection-placeholder {
+			color: theme("colors.orange") !important;
+		}
+
+		.contentVideo {
+			padding: 0.5rem;
+		}
+
+		.ant-input.css-dev-only-do-not-override-m4timi.ant-input-outlined {
+			width: 100%;
+			border: 1px solid;
+			border-color: theme("colors.gray.light") !important;	
+		}
+
+		.ant-btn.css-dev-only-do-not-override-m4timi.ant-btn-default {
+			background-color: #FFEEE8;
+			color: theme("colors.orange");
+		}
+	}
+}
+
 .quizItemCardContainer {
 	:global {
 		width: 100%;

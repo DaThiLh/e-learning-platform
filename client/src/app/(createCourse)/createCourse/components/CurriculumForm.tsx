@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import HeaderForm from "./HeaderForm";
-import { Form, Input, Button, Typography, Radio, message } from "antd";
+import { Form, Input, Button, Typography, Radio, message, Select } from "antd";
 import styles from "./CurriculumForm.module.scss";
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import NavigationButton from "./NavigationButton";
+import { set } from "zod";
 
 const { Title } = Typography;
 
@@ -44,6 +45,13 @@ interface Quiz_TitleCardProps {
 	handleAdd(): void;
 	setTitle(title: string): void;
 	setDescription(description: string): void;
+	onSendItemType(itemType: string): void;
+}
+
+interface Lecture_TitleCardProps {
+	handleBack(): void;
+	handleAdd(): void;
+	setTitle(title: string): void;
 	onSendItemType(itemType: string): void;
 }
 
@@ -243,26 +251,14 @@ const ItemCard = ({ item, index, onDelete }: ItemCardProps) => {
 								<DeleteOutlined />
 							</Button>
 						</div>
-						{/* <Select
-            placeholder={"Content"}
-            className={styles.selectedButton}
-            value={item.type}
-          >
-            {contentTypes.map((option) => (
-              <Select.Option
-                key={option.label}
-                value={option.value}
-                className={styles.selectedButtonItem}
-              >
-                {option.label}
-              </Select.Option>
-            ))}
-          </Select> */}
 						{selectedItemType === "quiz" && (
 							<ItemsInQuizCard
 								quizzes={[defaultItemQuiz()]}
 							/>
 						)}
+						{selectedItemType === "lecture" &&
+							<ItemsInLectureCard />
+						}
 					</div>
 
 				</>
@@ -401,7 +397,6 @@ const ItemsInQuizCard = ({ quizzes }: ItemsInQuizCardProps) => {
 	);
 };
 
-
 const ItemType = ({
 	handleBack,
 	handleAdd,
@@ -426,7 +421,14 @@ const ItemType = ({
 				</>
 			)}
 
-			{selectedItemType === "lecture" && <div>Lecture Component</div>}
+			{selectedItemType === "lecture" && (
+				<Lecture_TitleCard
+					handleBack={handleBack}
+					handleAdd={handleAdd}
+					setTitle={setTitle}
+					onSendItemType={onSendItemType}
+				/>
+			)}
 
 			{selectedItemType === "quiz" && (
 				<Quiz_TitleCard
@@ -587,4 +589,114 @@ const Quiz_ItemCard = ({
 	);
 };
 
+// use for lecture 
+const Lecture_TitleCard = ({
+	handleBack,
+	handleAdd,
+	setTitle,
+	onSendItemType
+}: Lecture_TitleCardProps) => {
+	const [title, setTitleState] = useState<string>("");
+
+	const onFinish = () => {
+		setTitle(title);
+		handleAdd();
+		onSendItemType("lecture");
+	}
+
+	return (
+		<div className={styles.quizTitleCardContainer}>
+			<div className="content">
+				<Title level={5} className="w-1/4">New Lecture:</Title>
+				<div className="flex flex-col w-4/5 gap-1">
+					<Input
+						name="title"
+						placeholder="Enter a title"
+						value={title}
+						allowClear
+						onChange={(e) => setTitleState(e.target.value)}
+					/>
+				</div>
+			</div>
+			<div className="flex flex-row justify-end gap-4">
+				<Button onClick={handleBack}>Cancel</Button>
+				<Button type="primary" onClick={onFinish}>
+					Add <PlusOutlined />
+				</Button>
+			</div>
+		</div>
+	)
+}
+
+const ItemsInLectureCard = () => {
+	const [selectedContentType, setSelectedContentType] = useState<string | null>(null);
+	const [showableContentType, setShowableContentType] = useState<boolean>(true);
+	const [urlVideo, setUrlVideo] = useState<string>("");
+	const [showableComponent, setShowableComponent] = useState<boolean>(true);
+
+	const handleSetContentType = (value: string) => {
+		setSelectedContentType(value);
+		setShowableContentType(false);
+	}
+
+	return (
+		<div className={styles.ItemsInLectureContainer}>
+			{
+				showableContentType && (
+					<Select
+						placeholder="Content Type"
+						onChange={(e) => handleSetContentType(e)}>
+						{contentTypes.map((option) => (
+							<Select.Option key={option.value} value={option.value}>
+								{option.label}
+							</Select.Option>
+						))}
+					</Select>
+				)
+			}
+
+			{showableComponent && 
+			<div>
+				{
+					selectedContentType === "Video" && (
+						<>
+							<div className="contentVideo">
+								<Title level={5}>Video:</Title>
+								<div className="flex">
+									<Input
+										placeholder="Enter the video URL"
+										value={urlVideo}
+										onChange={(e) => setUrlVideo(e.target.value)}
+									/>
+									<Button onClick={() => setShowableComponent(false)}>
+										Submit
+									</Button>
+									{
+										showableComponent && (
+											<span>hihi</span>
+										)
+									}
+								</div>
+							</div>
+						</>
+					)
+				}
+				{
+					selectedContentType === "Article" && (
+						<span>hihiarticle</span>
+					)
+				}
+			</div>
+			}
+		</div>
+	)
+}
+
+const LectureTableCard = ({
+	selectedContentType, 
+	urlVideo
+
+}) => {
+
+}
 export default CurriculumForm;
