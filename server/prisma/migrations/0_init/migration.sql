@@ -1,16 +1,10 @@
 -- use this file to create table on the database
 -- drop database if exists defaultdb;
-
-
 -- create database defaultdb;
-
-
 -- use defaultdb;
-
-
 CREATE TABLE
   User (
-    id MEDIUMINT UNSIGNED NOT NULL,
+    id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
     full_name VARCHAR(52) NOT NULL,
     email VARCHAR(320) NOT NULL UNIQUE,
     position VARCHAR(50) NOT NULL,
@@ -138,14 +132,13 @@ CREATE TABLE
 SET
   utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-
 CREATE TABLE
   Section (
     id SMALLINT UNSIGNED NOT NULL,
     course_id MEDIUMINT UNSIGNED NOT NULL,
     title VARCHAR(80) NOT NULL,
     number_of_item SMALLINT UNSIGNED NOT NULL DEFAULT 0,
-    duration TIME NOT NULL,
+    duration INT DEFAULT,
     status ENUM ('pending', 'publish', 'unpublish') NOT NULL DEFAULT 'pending',
     CONSTRAINT PK_Section PRIMARY KEY (course_id, id),
     CONSTRAINT FK_Section_Course FOREIGN KEY (course_id) REFERENCES Course (id),
@@ -153,7 +146,6 @@ CREATE TABLE
   ) DEFAULT CHARACTER
 SET
   utf8mb4 COLLATE utf8mb4_unicode_ci;
-
 
 CREATE TABLE SectionOrder (
     section_id SMALLINT UNSIGNED NOT NULL,
@@ -341,20 +333,21 @@ CREATE TABLE
   Payment (
     id MEDIUMINT UNSIGNED AUTO_INCREMENT,
     date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    total_price MEDIUMINT UNSIGNED NOT NULL,
-    total_course MEDIUMINT UNSIGNED NOT NULL,
+    total_price MEDIUMINT UNSIGNED DEFAULT 0,
+    total_course MEDIUMINT UNSIGNED DEFAULT 0,
+    learner_id MEDIUMINT UNSIGNED NOT NULL,
     CONSTRAINT PK_Payment PRIMARY KEY (id)
+    CONSTRAINT FK_Payment_Learner FOREIGN KEY (learner_id) REFERENCES Learner (learner_id)
   ) DEFAULT CHARACTER
 SET
   utf8mb4 COLLATE utf8mb4_unicode_ci;
-
 
 CREATE TABLE
   EnrollementCourse (
     course_id MEDIUMINT UNSIGNED NOT NULL,
     learner_id MEDIUMINT UNSIGNED NOT NULL,
     course_completion_date DATE,
-    course_rating SMALLINT UNSIGNED,
+    course_rating SMALLINT UNSIGNED DEFAULT 0,
     course_comment VARCHAR(2000),
     final_course_price MEDIUMINT UNSIGNED NOT NULL,
     payment_id MEDIUMINT UNSIGNED NOT NULL,
