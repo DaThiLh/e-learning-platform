@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import HeaderForm from "./HeaderForm";
-import { Form, Input, Button, Typography, Radio, message, Select } from "antd";
+import { Form, Input, Button, Typography, Radio, message, Select, Table, InputNumber, Modal, Tooltip } from "antd";
 import styles from "./CurriculumForm.module.scss";
-import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import { DeleteOutlined, PlusOutlined, CloseOutlined, SaveOutlined } from "@ant-design/icons";
 import NavigationButton from "./NavigationButton";
-import { set } from "zod";
-
+import type { TableProps } from 'antd';
+import languages from './languages.json';
+import TextArea from "antd/es/input/TextArea";
 const { Title } = Typography;
 
 type QuizItemType = {
@@ -14,10 +15,17 @@ type QuizItemType = {
 	correctAnswer: string;
 };
 
+type LectureItemType = {
+	urlVideo: string;
+	description?: string;
+	resource?: string;
+	caption?: CaptionType[];
+};
+
 type ItemCardType = {
-	type: "lecture" | "quiz" | "";
 	title: string;
 	description: string;
+	content: QuizItemType | LectureItemType;
 };
 
 type SectionType = {
@@ -28,6 +36,18 @@ type SectionType = {
 type CurriculumFormType = {
 	sections: SectionType[];
 };
+
+type CaptionType = {
+	caption: string;
+	language: string;
+}
+
+interface Lecture_ItemCardProps {
+	setUrlVideoValue(value: string): void;
+	setDescriptionValue(value: string): void;
+	setResourceValue(value: string): void;
+	setCaptionValue(value: CaptionType[]): void;
+}
 
 interface Quiz_ItemCardProps {
 	question: string;
@@ -107,13 +127,66 @@ const defaultCurriculum: CurriculumFormType = {
 			title: "",
 			items: [
 				{
-					type: "lecture",
 					title: "",
-					description: "Lecture 1 Description",
+					description: "",
+					content: defaultItemQuiz(),
 				},
 			],
 		},
 	],
+};
+
+interface DataTableLectureType {
+	key: React.Key;
+	lectureType: string;
+	fileName: string;
+	type: string;
+	date: Date;
+	align: string;
+	onHeaderCell?: any;
+}
+
+interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
+	editing: boolean;
+	dataIndex: string;
+	title: any;
+	inputType: 'number' | 'text';
+	record: DataTableLectureType;
+	index: number;
+}
+
+const EditableCell: React.FC<EditableCellProps> = ({
+	editing,
+	dataIndex,
+	title,
+	inputType,
+	record,
+	index,
+	children,
+	...restProps
+}) => {
+	const inputNode = inputType === 'number' ? <InputNumber /> : <Input />;
+
+	return (
+		<td {...restProps}>
+			{editing ? (
+				<Form.Item
+					name={dataIndex}
+					style={{ margin: 0 }}
+					rules={[
+						{
+							required: true,
+							message: `Please Input ${title}!`,
+						},
+					]}
+				>
+					{inputNode}
+				</Form.Item>
+			) : (
+				children
+			)}
+		</td>
+	);
 };
 
 const CurriculumForm = ({
@@ -124,11 +197,10 @@ const CurriculumForm = ({
 	const [sectionsInForm, setSections] = useState<SectionType[]>(curriculumForm.sections);
 
 	const handleAddSection = () => {
-		const newSection: SectionType = {
+		setSections([...sectionsInForm, {
 			title: "",
 			items: [],
-		};
-		setSections([...sectionsInForm, newSection]);
+		}]);
 	};
 
 	return (
@@ -205,6 +277,12 @@ const ItemCard = ({ item, index, onDelete }: ItemCardProps) => {
 	const [selectedItemType, setSelectedItemType] = useState<string | null>("chooseItemTyp");
 	const [title, setTitle] = useState<string>(item.title);
 	const [description, setDescription] = useState<string>(item.description);
+	const [lectureInfo, setLectureInfo] = useState<LectureItemType>({
+		urlVideo: "",
+		description: "",
+		resource: "",
+		caption: [],
+	});
 
 	const handleAdd = () => {
 		console.log("handleAdd called with values");
@@ -216,6 +294,40 @@ const ItemCard = ({ item, index, onDelete }: ItemCardProps) => {
 	const handleSetItemTypeFromChild = (itemType: string) => {
 		setSelectedItemType(itemType);
 	};
+
+	useEffect(() => {
+		console.log("Lecture Info Updated: ", lectureInfo);
+	}, [lectureInfo]);
+
+	const setUrlVideoValue = (value: string) => {
+		console.log("setUrlVideoValue called with value: ", value);
+		setLectureInfo(prevLectureInfo => ({
+			...prevLectureInfo,
+			urlVideo: value
+		}));
+	};
+	
+
+	const setDescriptionValue = (value: string) => {
+		setLectureInfo(prevLectureInfo => ({
+			...prevLectureInfo,
+			description: value
+		}));
+	};
+
+	const setResourceValue = (value: string) => {
+		setLectureInfo(prevLectureInfo => ({
+			...prevLectureInfo,
+			resource: value
+		}));
+	}
+
+	const setCaptionValue = (value: CaptionType[]) => {
+		setLectureInfo(prevLectureInfo => ({
+			...prevLectureInfo,
+			caption: value
+		}));
+	}
 
 	return (
 		<div className={styles.itemContainer}>
@@ -256,11 +368,17 @@ const ItemCard = ({ item, index, onDelete }: ItemCardProps) => {
 								quizzes={[defaultItemQuiz()]}
 							/>
 						)}
-						{selectedItemType === "lecture" &&
-							<ItemsInLectureCard />
-						}
+						{selectedItemType === "lecture" && (
+							<>
+								<ItemInLectureCard
+									setUrlVideoValue={setUrlVideoValue}
+									setDescriptionValue={setDescriptionValue}
+									setResourceValue={setResourceValue}
+									setCaptionValue={setCaptionValue}
+								/>
+							</>
+						)}
 					</div>
-
 				</>
 			)}
 		</div>
@@ -589,7 +707,6 @@ const Quiz_ItemCard = ({
 	);
 };
 
-// use for lecture 
 const Lecture_TitleCard = ({
 	handleBack,
 	handleAdd,
@@ -628,15 +745,261 @@ const Lecture_TitleCard = ({
 	)
 }
 
-const ItemsInLectureCard = () => {
+const ItemInLectureCard = ({
+	setUrlVideoValue, setDescriptionValue, setResourceValue, setCaptionValue
+}: Lecture_ItemCardProps) => {
 	const [selectedContentType, setSelectedContentType] = useState<string | null>(null);
 	const [showableContentType, setShowableContentType] = useState<boolean>(true);
 	const [urlVideo, setUrlVideo] = useState<string>("");
 	const [showableComponent, setShowableComponent] = useState<boolean>(true);
+	const [inputError, setInputError] = useState(false);
+	const [form] = Form.useForm();
+	const [data, setData] = useState<DataTableLectureType[]>([]);
+	const [editingKey, setEditingKey] = useState('');
+	const [openPopUpAddDescription, setOpenPopUpAddDescription] = useState(false);
+	const [openPopUpAddCaption, setOpenPopUpAddCaption] = useState(false);
+	const [openPopUpAddResource, setOpenPopUpAddResource] = useState(false);
+	const [captions, setCaptions] = useState<CaptionType[]>([]);
+	const [captionError, setCaptionError] = useState(false);
+	const [noChooseLanguage, setNoChooseLanguage] = useState(false);
+	const [contentDescription, setContentDescription] = useState<string>("");
+	const [urlResource, setUrlResource] = useState<string>("");
+	const [urlCaption, setUrlCaption] = useState<string>("");
+	const [captionLanguage, setCaptionLanguage] = useState<string>("");
+	const [saveSuccess, setSaveSuccess] = useState<boolean>(false);
 
 	const handleSetContentType = (value: string) => {
 		setSelectedContentType(value);
 		setShowableContentType(false);
+	}
+
+	const handleSubmitUrlVideo = () => {
+		if (urlVideo === "") {
+			setInputError(true);
+		} else {
+			setInputError(false);
+			setShowableComponent(false);
+			setData([...data, {
+				key: data.length,
+				lectureType: 'Lecture',
+				fileName: urlVideo,
+				type: 'url',
+				date: new Date(),
+				align: 'center',
+			}]);
+		}
+	}
+
+	const isEditing = (record: DataTableLectureType) => record.key === editingKey;
+
+	const edit = (record: Partial<DataTableLectureType> & { key: React.Key }) => {
+		form.setFieldsValue({ fileName: '', action: '', align: '', ...record });
+		setEditingKey(record.key);
+	};
+
+	const cancel = () => {
+		setEditingKey('');
+	};
+
+	const save = async (key: React.Key) => {
+		try {
+			const row = (await form.validateFields()) as DataTableLectureType;
+
+			const newData = [...data];
+			const index = newData.findIndex((item) => key === item.key);
+			if (index > -1) {
+				const item = newData[index];
+				newData.splice(index, 1, {
+					...item,
+					...row,
+				});
+				setData(newData);
+				setEditingKey('');
+			} else {
+				newData.push(row);
+				setData(newData);
+				setEditingKey('');
+			}
+		} catch (errInfo) {
+			console.log('Validate Failed:', errInfo);
+		}
+	};
+
+	const deleteRow = (key: React.Key) => {
+		const newData = data.filter((item) => item.key !== key);
+		setData(newData);
+		setEditingKey('');
+
+		if (data.find((item) => item.key === key)?.lectureType.includes('Description')) {
+			setContentDescription("");
+		}
+
+		if (data.find((item) => item.key === key)?.lectureType.includes('Resource')) {
+			setUrlResource("");
+		}
+	};
+
+	const columns = [
+		{
+			title: 'Lecture Type',
+			dataIndex: 'lectureType',
+			align: 'center',
+			width: '30%',
+			ellipsis: true,
+		},
+		{
+			title: 'Content',
+			dataIndex: 'fileName',
+			editable: true,
+			align: 'center',
+			width: '50%',
+			ellipsis: true,
+		},
+		// {
+		// 	title: 'Type',
+		// 	dataIndex: 'type',
+		// 	editable: false,
+		// 	align: 'center',
+		// 	width: '15%',
+		// 	ellipsis: true,
+		// },
+		// {
+		// 	title: 'Date',
+		// 	dataIndex: 'date',
+		// 	editable: false,
+		// 	width: '20%',
+		// 	align: 'center',
+		// 	render: (text: Date) => (
+		// 		<span>{new Date(text).toLocaleDateString()}</span>
+		// 	),
+		// 	ellipsis: true,
+		// },
+		{
+			title: 'Action',
+			dataIndex: 'action',
+			align: 'center',
+			width: '20%',
+			render: (_: any, record: DataTableLectureType) => {
+				const editable = isEditing(record);
+				return editable ? (
+					<span className="space-x-2">
+						{
+							record.lectureType === 'Lecture' ? <>
+								<Tooltip title="Save">
+									<Typography.Link className="mr-1" onClick={() => save(record.key)}>
+										<SaveOutlined />
+									</Typography.Link>
+								</Tooltip>
+							</> : <>
+								<Tooltip title="Save">
+									<Typography.Link className="mr-1" onClick={() => save(record.key)}>
+										<SaveOutlined />
+									</Typography.Link>
+								</Tooltip>
+								<Tooltip title="Delete">
+									<Typography.Link className="mr-1" onClick={() => deleteRow(record.key)}>
+										<DeleteOutlined />
+									</Typography.Link>
+								</Tooltip>
+							</>
+						}
+						<Tooltip title="Cancel">
+							<Typography.Link onClick={cancel} className="mr-1">
+								<CloseOutlined />
+							</Typography.Link>
+						</Tooltip>
+					</span>
+				) : (
+					<Typography.Link disabled={editingKey !== ''} onClick={() => edit(record)}>
+						Edit
+					</Typography.Link>
+				);
+			},
+			ellipsis: true,
+		},
+	];
+
+	const mergedColumns: TableProps['columns'] = columns.map((col) => {
+		if (!col.editable) {
+			return col;
+		}
+		return {
+			...col,
+			onCell: (record: DataTableLectureType) => ({
+				record,
+				inputType: col.dataIndex === 'age' ? 'number' : 'text',
+				dataIndex: col.dataIndex,
+				title: col.title,
+				editing: isEditing(record),
+			}),
+		};
+	});
+
+	const optionsLanguage = languages.map(lang => ({
+		label: lang.name,
+		value: lang.code,
+	}));
+
+	const handleSaveAllItems = () => {
+		setUrlVideoValue(urlVideo);
+		setDescriptionValue(contentDescription);
+		setResourceValue(urlResource);
+		setCaptionValue(captions);
+		setSaveSuccess(true);
+	};
+	
+
+	const hanldeAddDescription = () => {
+		setOpenPopUpAddDescription(false);
+		setData([...data, {
+			key: data.length,
+			lectureType: 'Description',
+			fileName: contentDescription,
+			type: 'TEXT',
+			date: new Date(),
+			align: 'center',
+		}]);
+	}
+
+	const hanldeAddResource = () => {
+		setOpenPopUpAddResource(false);
+		setData([...data, {
+			key: data.length,
+			lectureType: 'Resource',
+			fileName: urlResource,
+			type: 'URL',
+			date: new Date(),
+			align: 'center',
+		}]);
+	}
+
+	const handleAddCaption = () => {
+		if (urlCaption === "" || captionLanguage === "") {
+			setCaptionError(urlCaption === "");
+			setNoChooseLanguage(captionLanguage === "");
+		} else {
+			setCaptionError(false);
+			setNoChooseLanguage(false);
+			setOpenPopUpAddCaption(false);
+			setCaptions([...captions, {
+				caption: urlCaption,
+				language: captionLanguage,
+			}]);
+			setData([...data, {
+				key: data.length,
+				lectureType: `Caption: ${captionLanguage}`,
+				fileName: urlCaption,
+				type: 'URL',
+				date: new Date(),
+				align: 'center',
+			}]);
+			setUrlCaption("");
+			setCaptionLanguage("");
+		}
+	}
+
+	const handleCancelCaption = () => {
+		setOpenPopUpAddCaption(false);
 	}
 
 	return (
@@ -655,10 +1018,9 @@ const ItemsInLectureCard = () => {
 				)
 			}
 
-			{showableComponent && 
-			<div>
-				{
-					selectedContentType === "Video" && (
+			{showableComponent && (
+				<div>
+					{selectedContentType === "Video" && (
 						<>
 							<div className="contentVideo">
 								<Title level={5}>Video:</Title>
@@ -667,36 +1029,121 @@ const ItemsInLectureCard = () => {
 										placeholder="Enter the video URL"
 										value={urlVideo}
 										onChange={(e) => setUrlVideo(e.target.value)}
+										status={inputError ? "error" : ""}
 									/>
-									<Button onClick={() => setShowableComponent(false)}>
+									<Button onClick={handleSubmitUrlVideo}>
 										Submit
 									</Button>
-									{
-										showableComponent && (
-											<span>hihi</span>
-										)
-									}
 								</div>
+								{inputError && <p style={{ color: 'red' }}>Video URL is required.</p>}
 							</div>
 						</>
-					)
-				}
-				{
-					selectedContentType === "Article" && (
-						<span>hihiarticle</span>
-					)
-				}
-			</div>
+					)}
+					{
+						selectedContentType === "Article" && (
+							<span>hihiarticle</span>
+						)
+					}
+				</div>
+			)}
+			{
+				!showableComponent && !saveSuccess && (
+					<>
+						<div className="w-full pt-2">
+							<Form form={form} component={false}>
+								<Table
+									components={{
+										body: {
+											cell: EditableCell,
+										},
+									}}
+									bordered
+									dataSource={data}
+									columns={mergedColumns}
+									rowClassName="editable-row"
+									pagination={false}
+								/>
+							</Form>
+							<div className="flex justify-between mt-8">
+								<div className="flex space-x-1">
+									{
+										contentDescription === "" &&
+										<Button onClick={() => setOpenPopUpAddDescription(true)}>
+											Add Description
+											<PlusOutlined />
+										</Button>
+									}
+									{
+										urlResource === "" &&
+										<Button onClick={() => setOpenPopUpAddResource(true)}>
+											Add Resource
+											<PlusOutlined />
+										</Button>
+									}
+									<Button onClick={() => setOpenPopUpAddCaption(true)}>
+										Add Caption
+										<PlusOutlined />
+									</Button>
+								</div>
+								<Button onClick={handleSaveAllItems}>
+									Save
+								</Button>
+							</div>
+							<Modal title="Add Description(Optional)" centered open={openPopUpAddDescription} onOk={hanldeAddDescription} onCancel={() => setOpenPopUpAddDescription(false)}>
+								<TextArea placeholder="Enter a description" showCount className="mb-2" value={contentDescription}
+									onChange={(e) => setContentDescription(e.target.value)}
+								/>
+								<span>
+									* Each lecture can have a description.
+								</span>
+							</Modal>
+							<Modal title="Add Resource" centered open={openPopUpAddResource} onOk={hanldeAddResource} onCancel={() => setOpenPopUpAddResource(false)}>
+								<Input placeholder="Enter an url resource" value={urlResource} onChange={(e) => setUrlResource(e.target.value)} />
+								<span className="mt-2">
+									* Each lecture can have a resource.
+								</span>
+							</Modal>
+							<Modal title="Add Caption(Optional)" centered open={openPopUpAddCaption} onOk={handleAddCaption} onCancel={handleCancelCaption}>
+								<div className="flex space-x-4">
+									<div className="flex flex-col w-1/2">
+										<Title level={5} className="mb-2">Caption</Title>
+										<Input placeholder="Enter an url caption" onChange={(e) => setUrlCaption(e.target.value)} status={captionError ? "error" : ""} />
+										<span className="text-[10px]">
+											*Caption must be a valid URL.
+										</span>
+									</div>
+									<div className="flex flex-col w-1/2">
+										<Title level={5}>Language</Title>
+										<Select
+											showSearch
+											placeholder="Select Language"
+											optionFilterProp="label"
+											options={optionsLanguage}
+											filterSort={(optionA, optionB) =>
+												(optionA?.value ?? '').toLowerCase().localeCompare((optionB?.value ?? '').toLowerCase())
+											}
+											onChange={(value) => setCaptionLanguage(value)}
+											status={noChooseLanguage ? "error" : ""}
+										/>
+										<span className="text-[10px]">
+											*Please choose the language.
+										</span>
+									</div>
+								</div>
+							</Modal>
+						</div>
+					</>
+				)
+			}
+			{
+				saveSuccess && (
+					<Button onClick={() => setSaveSuccess(false)}>
+						Edit Lecture
+					</Button>
+				)
 			}
 		</div>
 	)
 }
 
-const LectureTableCard = ({
-	selectedContentType, 
-	urlVideo
-
-}) => {
-
-}
 export default CurriculumForm;

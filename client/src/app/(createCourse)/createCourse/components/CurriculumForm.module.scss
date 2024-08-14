@@ -1,3 +1,5 @@
+@import "@styles/mixins.scss";
+
 .curriculumFormContainer {
 	:global {
 		width: 50vw;
@@ -10,10 +12,8 @@
 		.ant-input.ant-input-outlined {
 			border: none;
 			border-bottom: 1px solid #d9d9d9;
-			border-radius: 0;
 			width: 15vw;
 			background-color: theme("colors.gray.light");
-			border-radius: 0;
 
 			&:focus {
 				outline: none;
@@ -28,7 +28,6 @@
 			color: theme("colors.orange");
 			outline: none;
 			box-shadow: none;
-			border-radius: 0;
 
 			&:hover {
 				color: theme("colors.orange") !important;
@@ -50,7 +49,6 @@
 			background-color: theme("colors.gray.light");
 			outline: none;
 			box-shadow: none;
-			border-radius: 0;
 
 
 			&:hover {
@@ -65,7 +63,6 @@
 			color: theme("colors.orange");
 			outline: none;
 			box-shadow: none;
-			border-radius: 0;
 
 			&:hover {
 				background-color: #FFEEE8;
@@ -90,7 +87,6 @@
 			color: theme("colors.orange");
 			outline: none;
 			box-shadow: none;
-			border-radius: 0;
 
 			&:hover {
 				background-color: #FFEEE8;
@@ -123,7 +119,6 @@
 			box-shadow: none;
 			background-color: #ffeee8 !important;
 			color: theme("colors.orange") !important;
-			border-radius: 0;
 		}
 
 		.ant-select-selection-placeholder {
@@ -152,7 +147,6 @@
 
 		.ant-btn.css-dev-only-do-not-override-m4timi.ant-btn-primary {
 			background-color: theme("colors.orange");
-			border-radius: 0;
 
 			&:hover {
 				opacity: 0.9;
@@ -175,7 +169,6 @@
 			background-color: white;
 			color: theme("colors.orange");
 			box-shadow: none;
-			border-radius: 0;
 
 			&:hover {
 				background-color: white;

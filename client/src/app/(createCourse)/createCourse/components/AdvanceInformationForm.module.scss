@@ -2,6 +2,9 @@
 
 .advanceInformationFormContainer {
 	:global {
+		width: 50vw;
+		padding: 1rem;
+
 		.form-row,
 		.button-form-row {
 			display: flex;
@@ -29,20 +32,15 @@
 			}
 		}
 
-		#input-text-and-btn {
-			display: flex;
-			width: 45vw;
-
-			@media (max-width: 1024px) {
-				width: 60vw;
-			}
+		.ant-row.ant-form-item-row.css-dev-only-do-not-override-m4timi {
+			width: 100%;
 		}
-	}
-}
 
-.buttonDeleteItem {
-	:global {
-		.ant-btn.css-dev-only-do-not-override-m4timi.ant-btn-default {
+		.ant-input-affix-wrapper.css-dev-only-do-not-override-m4timi.ant-input-outlined{
+			width: 	100%;
+		}
+
+		.buttonDeleteItem {
 			border-style: none;
 			box-shadow: none;
 			color: theme("colors.orange");

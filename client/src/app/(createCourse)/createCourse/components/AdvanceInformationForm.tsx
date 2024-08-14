@@ -1,12 +1,18 @@
 import React, { useState } from "react";
 import HeaderForm from "./HeaderForm";
-import { Form, Input, message, Upload, Button } from "antd";
-import { UploadOutlined, PlusOutlined, CloseOutlined } from "@ant-design/icons";
+import { Form, Input, message, Upload, Button, Typography, Tooltip } from "antd";
+import { UploadOutlined, PlusOutlined, CloseOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import type { UploadProps } from "antd";
-import s from "./AdvanceInformationForm.module.scss";
+import styles from "./AdvanceInformationForm.module.scss";
 import NavigationButton from "./NavigationButton";
+const { Title } = Typography;
 
 const { Dragger } = Upload;
+
+interface advanceInformationProps {
+	objectifs: string[];
+	requirements: string[];
+}
 
 const AdvanceInformationForm = () => {
 	const [fileList, setFileList] = useState([]);
@@ -36,16 +42,6 @@ const AdvanceInformationForm = () => {
 		return false; // Prevent automatic upload to allow custom behavior
 	};
 
-	const addObjectif = () => {
-		const newObjectif = listOfObjectifs.length + 1;
-		setListOfObjectifs([...listOfObjectifs, newObjectif]);
-	};
-
-	const addRequirement = () => {
-		const newRequirement = listOfRequirements.length + 1;
-		setListOfObjectifs([...listOfRequirements, newRequirement]);
-	};
-
 	const uploadProps: UploadProps = {
 		name: "file",
 		multiple: true,
@@ -58,13 +54,32 @@ const AdvanceInformationForm = () => {
 		fileList: fileList,
 	};
 
+	const addObjectif = () => {
+		const newObjectif = listOfObjectifs.length + 1;
+		setListOfObjectifs([...listOfObjectifs, newObjectif]);
+	};
+
+	const deleteItemObjectif = (index: number) => {
+		if (listOfObjectifs.length <= 2) return;
+		setListOfObjectifs(listOfObjectifs.filter((item) => item !== index));
+	};
+
+	const addRequirement = () => {
+		const newRequirement = listOfRequirements.length + 1;
+		setListOfRequirements([...listOfRequirements, newRequirement]);
+	};
+
+	const deleteItemRequirement = (index: number) => {
+		if (listOfRequirements.length <= 2) return;
+		setListOfRequirements(listOfRequirements.filter((item) => item !== index));
+	}
+
 	return (
-		<div className={`w-full p-4 ${s.advanceInformationFormContainer}`}>
+		<div className={styles.advanceInformationFormContainer}>
 			<HeaderForm headerName="Advance Information" />
 			<div
-				className={`flex flex-row items-center ${
-					preview ? "justify-start" : "justify-center"
-				}`}
+				className={`flex flex-row items-center pb-2 ${preview ? "justify-start" : "justify-center"
+					}`}
 			>
 				{preview && (
 					<div className="w-3/5 pl-10">
@@ -76,9 +91,8 @@ const AdvanceInformationForm = () => {
 					</div>
 				)}
 				<div
-					className={`w-${
-						preview ? "2/5" : "full"
-					} flex justify-center`}
+					className={`w-${preview ? "2/5" : "full"
+						} flex justify-center`}
 				>
 					<Upload {...uploadProps}>
 						<Button icon={<UploadOutlined />}>
@@ -87,92 +101,90 @@ const AdvanceInformationForm = () => {
 					</Upload>
 				</div>
 			</div>
+			<hr />
+			<Form layout="vertical">
+				<div className="flex flex-row justify-between py-2 gap-4">
+					<Title level={5}>
+						What do you will teach in this course?
+					</Title>
+					<Button
+						danger
+						onClick={addObjectif}
+						className="w-1/12 lg:w-full "
+					>
+						<PlusOutlined />
+						<span className="text-btn-add-new">Add new</span>
+					</Button>
+				</div>
+				{listOfObjectifs.map((objectif) => {
+					const label = objectif > 9 ? `${objectif}` : `0${objectif}`;
+					return (
+						<Form.Item
+							label={label}
+							name={`objective-${objectif}`}
+							key={objectif}
+						>
+							<div className="flex justify-between">
+								<Input
+									placeholder="What students are expected to achieve by the end of the course."
+									showCount
+									maxLength={160}
+								/>
+								<Tooltip title={listOfObjectifs.length <= 2 && objectif <= 2 ?
+									<>
+										<CloseCircleOutlined />
+										<span> Objectif must have one item.</span>
+									</> : ""}>
+									<Button className="buttonDeleteItem" onClick={() => deleteItemObjectif(objectif)}>
+										<CloseOutlined />
+									</Button>
+								</Tooltip>
+							</div>
+						</Form.Item>
+					);
+				})}
+			</Form>
 
 			<hr className="my-2" />
 
-				<Form layout="vertical">
-					<div className="flex flex-row justify-between">
-						<p className="font-bold">
-							What do you will teach in this course?
-						</p>
-						<Button
-							danger
-							onClick={addObjectif}
-							className="w-1/12 lg:w-full "
+			<Form layout="vertical">
+				<div className="flex flex-row justify-between py-2 gap-4">
+					<Title level={5}>Course requirements</Title>
+					<Button danger onClick={addRequirement}>
+						<PlusOutlined />
+						<span className="text-btn-add-new">Add new</span>
+					</Button>
+				</div>
+				{listOfRequirements.map((requirement) => {
+					const label =
+						requirement > 9 ? `${requirement}` : `0${requirement}`;
+					return (
+						<Form.Item
+							label={label}
+							name={`requirement-${requirement}`}
+							key={requirement}
 						>
-							<PlusOutlined />
-							<span className="text-btn-add-new">Add new</span>
-						</Button>
-					</div>
-					{listOfObjectifs.map((objectif) => {
-						const label =
-							objectif > 9 ? `${objectif}` : `0${objectif}`;
-						return (
-							<Form.Item
-								label={label}
-								name={`objective-${objectif}`}
-								key={objectif}
-								style={{
-									display: "flex",
-									flexDirection: "row",
-									alignItems: "center",
-								}}
-							>
-								<div id="input-text-and-btn">
-									<Input
-										placeholder="What students are expected to achieve by the end of the course."
-										showCount
-										maxLength={160}
-									/>
-									<div className={s.buttonDeleteItem}>
-										<Button>
-											<CloseOutlined />
-										</Button>
-									</div>
-								</div>
-							</Form.Item>
-						);
-					})}
-				</Form>
-
-				<hr className="my-4" />
-
-				<Form layout="vertical">
-					<div className="flex flex-row justify-between">
-						<p className="font-bold">Course requirements</p>
-						<Button danger onClick={addObjectif}>
-							<PlusOutlined />
-							<span className="text-btn-add-new">Add new</span>
-						</Button>
-					</div>
-					{listOfRequirements.map((requirement) => {
-						const label =
-							requirement > 9
-								? `${requirement}`
-								: `0${requirement}`;
-						return (
-							<Form.Item
-								label={label}
-								name={`requirement-${requirement}`}
-								key={requirement}
-							>
-								<div className="flex flex-row">
-									<Input
-										placeholder="What is you course requirements."
-										showCount
-										maxLength={160}
-									/>
-									<div className={s.buttonDeleteItem}>
-										<Button>
-											<CloseOutlined />
-										</Button>
-									</div>
-								</div>
-							</Form.Item>
-						);
-					})}
-				</Form>
-				<NavigationButton leftButton="Previous" rightButton="Next" />
+							<div className="flex justify-between">
+								<Input
+									placeholder="What is you course requirements."
+									showCount
+									maxLength={160}
+								/>
+								<Tooltip title={listOfRequirements.length <= 2 && requirement <= 2 ?
+									<>
+										<CloseCircleOutlined />
+										<span> Objectif must have one item.</span>
+									</> : ""}>
+									<Button className="buttonDeleteItem" onClick={() => deleteItemRequirement(requirement)}>
+										<CloseOutlined />
+									</Button>
+								</Tooltip>
+							</div>
+						</Form.Item>
+					);
+				})}
+			</Form>
+			<NavigationButton leftButton="Previous" rightButton="Next" actionRightButton={() => { }} />
 		</div>
 	);
 };

@@ -27,7 +27,7 @@ const items = [
 ];
 
 const CreateCourseForm = () => {
-	const [selectedKey, setSelectedKey] = useState(items[2]?.key);
+	const [selectedKey, setSelectedKey] = useState(items[1]?.key);
 
 	const handleClick = (e: { key: React.SetStateAction<string>; }) => {
 		setSelectedKey(e.key);

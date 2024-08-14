@@ -2,23 +2,8 @@
 
 .basicInformationFormContainer {
 	:global {
-		.ant-form.ant-form-vertical.css-dev-only-do-not-override-m4timi.createForm {
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			justify-content: center;
-		}
-
-		.ant-form-item-control-input-content input {
-			width: 40vw;
-			@media (max-width: 1024px) {
-				width: 50vw;
-			}
-		}
-
-		.ant-form-item-control-input-content textarea {
-			width: 100%;
-		}
+		width: 50vw;
+		padding: 1rem;
 
 		.form-row{
 			display: flex;
@@ -27,15 +12,15 @@
 			justify-content: space-between;
 		}
 
-		.ant-btn.css-dev-only-do-not-override-m4timi.ant-btn-default.ant-btn-dangerous {
-			width: 15%;
-			border-color: theme("colors.orange");
-			color: theme("colors.orange");
-		}
+		// .ant-btn.css-dev-only-do-not-override-m4timi.ant-btn-default.ant-btn-dangerous {
+		// 	width: 15%;
+		// 	border-color: theme("colors.orange");
+		// 	color: theme("colors.orange");
+		// }
 
-		.ant-btn.css-dev-only-do-not-override-m4timi.ant-btn-primary.ant-btn-dangerous {
-			width: 15%;
-			background-color: theme("colors.orange");
-		}
+		// .ant-btn.css-dev-only-do-not-override-m4timi.ant-btn-primary.ant-btn-dangerous {
+		// 	width: 15%;
+		// 	background-color: theme("colors.orange");
+		// }
 	}
 }
