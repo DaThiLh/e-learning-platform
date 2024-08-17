@@ -1,0 +1,15 @@
+model StudentAnswerQA {
+  quiz_id            Int                @db.UnsignedSmallInt
+  quiz_qa_id         Int                @db.UnsignedTinyInt
+  section_id         Int                @db.UnsignedSmallInt
+  course_id          Int                @db.UnsignedMediumInt
+  answer             String             @db.VarChar(600)
+  learner_id         Int                @db.UnsignedMediumInt
+  EnrollementCourse  EnrollementCourse  @relation(fields: [course_id, learner_id], references: [course_id, learner_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_StudentAnswerQA_EnrollementCourse")
+  QuizQAAnswerDetail QuizQAAnswerDetail @relation(fields: [answer, quiz_qa_id, quiz_id, section_id, course_id], references: [answer, quiz_qa_id, quiz_id, section_id, course_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_StudentAnswerQA_QuizQAAnswerDetail")
+
+  @@id([quiz_id, quiz_qa_id, section_id, course_id, answer])
+  @@index([course_id, learner_id], map: "FK_StudentAnswerQA_EnrollementCourse")
+  @@index([answer, quiz_qa_id, quiz_id, section_id, course_id], map: "FK_StudentAnswerQA_QuizQAAnswerDetail")
+  @@unique([answer, quiz_qa_id, quiz_id, section_id, course_id])
+}
