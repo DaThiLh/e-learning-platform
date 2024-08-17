@@ -22,7 +22,7 @@ const config: Config = {
         gray: {
           dark: "#1D2026",
           medium: "#6E7485",
-          light: "#8C94A3",
+          light: "#F5F7FA",
         },
         searchBackground: "#F5F7FA",
         background: "#F5F7FA",

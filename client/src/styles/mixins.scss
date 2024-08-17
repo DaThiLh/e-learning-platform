@@ -10,10 +10,32 @@
 
   &:hover {
     background: $bgColor !important;
-    opacity: 0.95 !important;
+    opacity: 0.7 !important;
     color: $textColor !important;
   }
 }
+
+@mixin btn2($textColor, $backgroundColor ) {
+  border-radius: 10px;
+  color: black;
+  background: white;
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  padding: 24px 24px;
+  width: 100%;
+  border: 2px;
+  border-radius: 0px;
+
+  &:hover {
+    border-radius: 0px;
+    background: $backgroundColor !important;
+    color: $textColor !important;
+    border: none;
+  }
+  
+}
+
 @mixin btn-secondary {
   @include btn(theme("colors.orange"), theme("colors.white"));
   border-width: 2px;
@@ -24,7 +46,12 @@
   @include btn(theme("colors.white"), theme("colors.orange"));
   border: none;
 }
-
+@mixin btn-card-with-media {
+  @include btn2(theme("colors.white"), theme("colors.orange"));
+  @media screen and (max-width: 640px) {
+    padding: 0px;
+  }
+}
 // @mixin centered-placeholder {
 //   border: 1px solid theme('colors.orange"');
 //   text-align: center;

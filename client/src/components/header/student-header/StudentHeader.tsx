@@ -18,7 +18,7 @@ const InstructorHeader = ({ contentName }: { contentName: string }) => {
     greeting = "Good evening!";
   }
   return (
-    <div className="h-fit w-full bg-primary-100 px-8 py-6 bg-white flex justify-between items-center">
+    <div className="h-fit w-full bg-primary-100 px-8 py-6 bg-white flex justify-between items-center border-b-2	">
       <div className="container mx-auto flex justify-between items-center">
         <section className="flex flex-col items-start justify-between gap-1">
           <p className="body-medium text-gray-medium">{greeting}</p>
