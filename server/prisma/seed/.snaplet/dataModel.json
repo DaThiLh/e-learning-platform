@@ -2090,6 +2090,20 @@
           "hasDefaultValue": false
         },
         {
+          "name": "Payment",
+          "type": "Payment",
+          "isRequired": false,
+          "kind": "object",
+          "relationName": "PaymentToLearner",
+          "relationFromFields": [],
+          "relationToFields": [],
+          "isList": true,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
+        },
+        {
           "name": "ShoppingCart",
           "type": "ShoppingCart",
           "isRequired": false,
@@ -2675,6 +2689,20 @@
           "maxLength": null
         },
         {
+          "id": "defaultdb.Payment.Learner_id",
+          "name": "Learner_id",
+          "columnName": "Learner_id",
+          "type": "mediumint",
+          "isRequired": true,
+          "kind": "scalar",
+          "isList": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false,
+          "isId": false,
+          "maxLength": null
+        },
+        {
           "id": "defaultdb.Payment.total_course",
           "name": "total_course",
           "columnName": "total_course",
@@ -2684,7 +2712,7 @@
           "isList": false,
           "isGenerated": false,
           "sequence": false,
-          "hasDefaultValue": false,
+          "hasDefaultValue": true,
           "isId": false,
           "maxLength": null
         },
@@ -2698,9 +2726,27 @@
           "isList": false,
           "isGenerated": false,
           "sequence": false,
-          "hasDefaultValue": false,
+          "hasDefaultValue": true,
           "isId": false,
           "maxLength": null
+        },
+        {
+          "name": "Learner",
+          "type": "Learner",
+          "isRequired": true,
+          "kind": "object",
+          "relationName": "PaymentToLearner",
+          "relationFromFields": [
+            "Learner_id"
+          ],
+          "relationToFields": [
+            "learner_id"
+          ],
+          "isList": false,
+          "isId": false,
+          "isGenerated": false,
+          "sequence": false,
+          "hasDefaultValue": false
         },
         {
           "name": "EnrollementCourse",
@@ -3662,13 +3708,13 @@
           "id": "defaultdb.Section.duration",
           "name": "duration",
           "columnName": "duration",
-          "type": "time",
-          "isRequired": true,
+          "type": "int",
+          "isRequired": false,
           "kind": "scalar",
           "isList": false,
           "isGenerated": false,
           "sequence": false,
-          "hasDefaultValue": false,
+          "hasDefaultValue": true,
           "isId": false,
           "maxLength": null
         },
@@ -4298,7 +4344,11 @@
           "kind": "scalar",
           "isList": false,
           "isGenerated": false,
-          "sequence": false,
+          "sequence": {
+            "identifier": "defaultdb.User.id",
+            "increment": 1,
+            "start": 1
+          },
           "hasDefaultValue": false,
           "isId": true,
           "maxLength": null

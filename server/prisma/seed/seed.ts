@@ -123,7 +123,9 @@ const main = async () => {
       CourseHighlight: [{}],
       EnrollementCourse: [{learner_id: copycat.oneOf(ctx.seed, seed.$store.learner.map((learner) => learner.learner_id)),
         payment_id: copycat.oneOf(ctx.seed, seed.$store.payment.map((payment) => payment.id)),
-      final_course_price: 0,}],
+      final_course_price: 0,
+      course_rating: copycat.oneOf(ctx.seed, [0, 1, 2, 3, 4, 5]),
+    }],
     })));
 
     await seed.courseObjective((x) => x(numCourse, (ctx) => ({
