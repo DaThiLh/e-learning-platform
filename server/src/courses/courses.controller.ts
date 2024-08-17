@@ -17,6 +17,11 @@ export class CoursesController {
     return this.coursesService.findAll();
   }
 
+  @Get('procedure')
+getCoursesByProcedure() {
+  return this.coursesService.getCoursesByProcedure();
+}
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.coursesService.findOne(+id);

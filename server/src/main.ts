@@ -14,7 +14,11 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  app.enableCors();
+  // app.enableCors();
+  // (BigInt.prototype as any).toJSON = function () {
+  //   const int = Number.parseInt(this.toString());
+  //   return int ?? this.toString();
+  // };
   await app.listen(5000);
 }
 bootstrap();
