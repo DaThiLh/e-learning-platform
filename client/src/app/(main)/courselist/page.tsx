@@ -170,22 +170,29 @@ import CourseComponent from "./components/CourseComponent";
 // ];
 
 const HomePage = async () => {
-  // Fetch data from the API
-  const res = await fetch("http://localhost:5000/courses", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+  try {
+    // Fetch data from the API
+    const res = await fetch("http://localhost:5000/courses/procedure", {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
 
-  const data = await res.json();
-  console.log(data); // For debugging purposes
+    if (!res.ok) throw new Error("Failed to fetch courses");
 
-  return (
-    <div>
-      <CourseComponent courses={data} />
-    </div>
-  );
+    // Parse and validate the response as JSON
+    const { data }: { data: Course[] } = await res.json();
+
+    console.log(data);
+
+    return (
+      <div>
+        <CourseComponent courses={data} />
+      </div>
+    );
+  } catch (error) {
+    console.error("Error loading courses:", error);
+    return <div>Error loading courses.</div>;
+  }
 };
 
 export default HomePage;

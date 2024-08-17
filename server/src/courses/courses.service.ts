@@ -34,7 +34,7 @@ export class CoursesService {
     ];
     const newCourses = mapColumnsToKeys(columns, courses);
 
-    return newCourses;
+    return { data: newCourses };
   }
 
   findOne(id: number) {

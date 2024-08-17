@@ -26,25 +26,25 @@ export default function CourseComponent({ courses }: { courses: Course[] }) {
               >
                 <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-52 lg:w-62">
                   <img
-                    alt={course.image}
-                    src={course.image}
+                    alt={course.title}
+                    src={`https://picsum.photos/312/${220 + course.id}`}
                     className="h-full w-full object-cover object-center lg:h-full lg:w-full"
                   />
                 </div>
                 <div className=" flex flex-col p-2 gap-2 border-x-[1.5px] border-b-[1.5px]">
                   <div className="flex justify-between">
                     <p className="body-5 bg-purple3 text-purple-950 font-medium opacity-50 w-fit p-1">
-                      {/* {course.category} */}{course.title}
+                      {course.subcategory_name}
                     </p>
 
                     <p className="font-medium text-orange body-2">
-                      {/* {course.price} */}{course.title}
+                      {course.sale_price}
                     </p>
                   </div>
 
                   <h3 className="body-3 font-medium text-gray-dark">
                     <span aria-hidden="true" className="absolute inset-0" />
-                    {/* {course.name} */}{course.title}
+                    {course.title}
                   </h3>
                 </div>
                 <div className="flex items-center justify-between  border-x-[1.5px] border-b-[1.5px] p-2">
@@ -57,7 +57,7 @@ export default function CourseComponent({ courses }: { courses: Course[] }) {
                       priority
                     />
                     <p className="ms-1 text-sm font-medium text-gray-medium dark:text-white">
-                      {/* {course.star} */}{course.title}
+                      {course.average_rating}
                     </p>
                   </div>
                   <div className="flex gap-1">
@@ -69,7 +69,7 @@ export default function CourseComponent({ courses }: { courses: Course[] }) {
                       priority
                     />
                     <p className="text-sm font-medium text-gray-dark  dark:text-white">
-                      {/* {course.view.toLocaleString()} */}{course.title}
+                      {course.students_enrolled}
                       <span className="text-gray-light">students</span>
                     </p>
                   </div>
