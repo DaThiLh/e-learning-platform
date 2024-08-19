@@ -45,10 +45,26 @@
 			box-shadow: none;
 			color: theme("colors.orange");
 
-			&:hover {
+			&:hover, :focus {
 				opacity: 0.8;
-				color: theme("colors.orange");
+				color: theme("colors.orange") !important;
 			}
+		}
+
+		.border-color-orange{
+			&:hover, :focus {
+				border-color: theme("colors.orange") !important;
+			}
+		}
+
+		.error-message {
+			color: red;
+		}
+	}
+
+	@media(max-width: 1024px) {
+		:global {
+			width: 60vw;
 		}
 	}
 }

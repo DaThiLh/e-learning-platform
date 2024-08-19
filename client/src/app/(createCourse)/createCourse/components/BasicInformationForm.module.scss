@@ -12,15 +12,20 @@
 			justify-content: space-between;
 		}
 
-		// .ant-btn.css-dev-only-do-not-override-m4timi.ant-btn-default.ant-btn-dangerous {
-		// 	width: 15%;
-		// 	border-color: theme("colors.orange");
-		// 	color: theme("colors.orange");
-		// }
+		.border-color-orange, .ant-select-selector{
+			&:hover, :focus {
+				border-color: theme("colors.orange") !important;
+			}
+		}
 
-		// .ant-btn.css-dev-only-do-not-override-m4timi.ant-btn-primary.ant-btn-dangerous {
-		// 	width: 15%;
-		// 	background-color: theme("colors.orange");
-		// }
+		.error-message {
+			color: red;
+		}
+	}
+
+	@media(max-width: 1024px) {
+		:global {
+			width: 60vw;
+		}
 	}
 }

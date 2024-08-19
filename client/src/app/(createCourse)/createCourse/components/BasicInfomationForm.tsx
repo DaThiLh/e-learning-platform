@@ -1,5 +1,5 @@
-"use client";
-import React, { useState, useEffect } from "react";
+'use client';
+import React, { useState } from "react";
 import HeaderForm from "./HeaderForm";
 import { Form, Input, Select, Typography } from "antd";
 import styles from "./BasicInformationForm.module.scss";
@@ -31,79 +31,75 @@ const optionsLanguage = languages.map((lang) => {
 	return { label: lang.name, value: lang.code };
 });
 
-const BasicInfomationForm = () => {
-	// Initialize state with data from localStorage if available
+const defaultBasicInformation: basicInformationProps = {
+	title: "",
+	subtitle: "",
+	description: "",
+	category: "",
+	subcategory: "",
+	language: "",
+}
+
+const BasicInformationForm = ({moveToNextForm}: {moveToNextForm: () => void;}) => {
 	const [basicInformation, setBasicInformation] = useState<basicInformationProps>(() => {
-		const savedData = localStorage.getItem("basicInformation");
+		const savedData = window.localStorage.getItem("basicInformation");
 		return savedData
 			? JSON.parse(savedData)
-			: {
-					title: "",
-					subtitle: "",
-					description: "",
-					category: "",
-					subcategory: "",
-					language: "",
-			  };
+			: defaultBasicInformation;
+	});
+	const [selectedCategory, setSelectedCategory] = useState<string | null>(basicInformation.category || null);
+	const [errors, setErrors] = useState({
+		titleError: false,
+		subtitleError: false,
+		descriptionError: false,
+		categoryError: false,
+		subcategoryError: false,
+		languageError: false,
 	});
 
-	const [selectedCategory, setSelectedCategory] = useState<string | null>(basicInformation.category || null);
-	const [titleError, setTitleError] = useState<boolean>(false);
-	const [subtitleError, setSubtitleError] = useState<boolean>(false);
-	const [descriptionError, setDescriptionError] = useState<boolean>(false);
-	const [categoryError, setCategoryError] = useState<boolean>(false);
-	const [subcategoryError, setSubcategoryError] = useState<boolean>(false);
-	const [languageError, setLanguageError] = useState<boolean>(false);
-
-	// Save form data to localStorage whenever it changes
-	useEffect(() => {
-		localStorage.setItem("basicInformation", JSON.stringify(basicInformation));
-	}, [basicInformation]);
+	const handleStateChange = (name: keyof basicInformationProps, value: string) => {
+		setBasicInformation((prev) => {
+			const newState = { ...prev, [name]: value };
+			localStorage.setItem("basicInformation", JSON.stringify(newState));
+			return newState;
+		});
+	};
 
 	const handleCategoryChange = (value: string) => {
 		setSelectedCategory(value);
-		setBasicInformation((prev) => ({ ...prev, category: value, subcategory: "" }));
-	};
-
-	const setTitle = (title: string) => {
-		setBasicInformation((prev) => ({ ...prev, title }));
-	};
-
-	const setSubtitle = (subtitle: string) => {
-		setBasicInformation((prev) => ({ ...prev, subtitle }));
-	};
-
-	const setDescription = (description: string) => {
-		setBasicInformation((prev) => ({ ...prev, description }));
-	};
-
-	const setSubcategory = (subcategory: string) => {
-		setBasicInformation((prev) => ({ ...prev, subcategory }));
-	};
-
-	const setLanguage = (language: string) => {
-		setBasicInformation((prev) => ({ ...prev, language }));
+		handleStateChange("category", value);
+		handleStateChange("subcategory", "");
 	};
 
 	const handleSubmitForm = () => {
-		setTitleError(basicInformation.title === "");
-		setSubtitleError(basicInformation.subtitle === "");
-		setDescriptionError(basicInformation.description === "");
-		setCategoryError(basicInformation.category === "");
-		setSubcategoryError(basicInformation.subcategory === "");
-		setLanguageError(basicInformation.language === "");
-
-		if (
-			!titleError &&
-			!subtitleError &&
-			!descriptionError &&
-			!categoryError &&
-			!subcategoryError &&
-			!languageError
-		) {
-			console.log(basicInformation);
+		const {
+			title,
+			subtitle,
+			description,
+			category,
+			subcategory,
+			language,
+		} = basicInformation;
+	
+		const newErrors = {
+			titleError: title.trim() === "",
+			subtitleError: subtitle.trim() === "",
+			descriptionError: description.trim() === "",
+			categoryError: category === "",
+			subcategoryError: subcategory === "",
+			languageError: language === "",
+		};
+	
+		setErrors(newErrors);
+	
+		if (Object.values(newErrors).every((error) => !error)) {
+			console.log("Form Submitted: ", basicInformation);
+			moveToNextForm();
+		} else {
+			console.log("Form has errors");
 		}
 	};
+	
 
 	return (
 		<div className={styles.basicInformationFormContainer}>
@@ -118,10 +114,10 @@ const BasicInfomationForm = () => {
 							showCount
 							maxLength={80}
 							value={basicInformation.title}
-							onChange={(e) => setTitle(e.target.value)}
-							status={titleError ? "error" : ""}
+							onChange={(e) => handleStateChange("title", e.target.value)}
+							className="border-color-orange"
 						/>
-						{titleError && <p style={{ color: "red" }}>Title is required.</p>}
+						{errors.titleError && <span className="error-message">* Title is required</span>}
 					</div>
 
 					<div className="flex flex-col">
@@ -131,10 +127,10 @@ const BasicInfomationForm = () => {
 							showCount
 							maxLength={120}
 							value={basicInformation.subtitle}
-							onChange={(e) => setSubtitle(e.target.value)}
-							status={subtitleError ? "error" : ""}
+							onChange={(e) => handleStateChange("subtitle", e.target.value)}
+							className="border-color-orange"
 						/>
-						{subtitleError && <p style={{ color: "red" }}>Subtitle is required.</p>}
+						{errors.subtitleError && <span className="error-message">* Subtitle is required</span>}
 					</div>
 
 					<div className="flex flex-col">
@@ -142,14 +138,14 @@ const BasicInfomationForm = () => {
 						<Input.TextArea
 							placeholder="Your course description"
 							value={basicInformation.description}
-							onChange={(e) => setDescription(e.target.value)}
-							status={descriptionError ? "error" : ""}
+							onChange={(e) => handleStateChange("description", e.target.value)}
+							className="border-color-orange"
 						/>
-						{descriptionError && <p style={{ color: "red" }}>Description is required.</p>}
+						{errors.descriptionError && <span className="error-message">* Description is required</span>}
 					</div>
 
 					<div className="form-row w-full">
-						<div className="w-1/2 flex flex-col gap-2">
+						<div className="w-1/2 flex flex-col gap-4">
 							<div>
 								<Title level={5}>Category</Title>
 								<Select
@@ -158,7 +154,6 @@ const BasicInfomationForm = () => {
 									onChange={handleCategoryChange}
 									className="w-full"
 									value={basicInformation.category}
-									status={categoryError ? "error" : ""}
 								>
 									{defaultCateogry.map((category, index) => (
 										<Select.Option key={index} value={category.category}>
@@ -166,34 +161,29 @@ const BasicInfomationForm = () => {
 										</Select.Option>
 									))}
 								</Select>
-								{categoryError && <p style={{ color: "red" }}>Category is required.</p>}
+								{errors.categoryError && <span className="error-message">* Category is required</span>}
 							</div>
 
 							{selectedCategory && (
-								<>
-									<div>
-										<Title level={5}>Sub Category</Title>
-										<Select
-											showSearch
-											placeholder="Select a sub category"
-											className="w-full"
-											onChange={(value) => setSubcategory(value)}
-											value={basicInformation.subcategory}
-											status={subcategoryError ? "error" : ""}
-										>
-											{defaultCateogry
-												.find((category) => category.category === selectedCategory)
-												?.subCategory.map((subCategory, index) => (
-													<Select.Option key={index} value={subCategory}>
-														{subCategory}
-													</Select.Option>
-												))}
-										</Select>
-										{subcategoryError && (
-											<p style={{ color: "red" }}>Subcategory is required</p>
-										)}
-									</div>
-								</>
+								<div>
+									<Title level={5}>Sub Category</Title>
+									<Select
+										showSearch
+										placeholder="Select a sub category"
+										className="w-full"
+										onChange={(value) => handleStateChange("subcategory", value)}
+										value={basicInformation.subcategory}
+									>
+										{defaultCateogry
+											.find((category) => category.category === selectedCategory)
+											?.subCategory.map((subCategory, index) => (
+												<Select.Option key={index} value={subCategory}>
+													{subCategory}
+												</Select.Option>
+											))}
+									</Select>
+									{errors.subcategoryError && <span className="error-message">* Sub Category is required</span>}
+								</div>
 							)}
 						</div>
 
@@ -203,9 +193,8 @@ const BasicInfomationForm = () => {
 								placeholder="Select a language"
 								showSearch
 								className="w-full"
-								onChange={(value) => setLanguage(value)}
+								onChange={(value) => handleStateChange("language", value)}
 								value={basicInformation.language}
-								status={languageError ? "error" : ""}
 							>
 								{optionsLanguage.map((lang, index) => (
 									<Select.Option key={index} value={lang.value}>
@@ -213,15 +202,20 @@ const BasicInfomationForm = () => {
 									</Select.Option>
 								))}
 							</Select>
-							{languageError && <p style={{ color: "red" }}>Language is required</p>}
+							{errors.languageError && <span className="error-message">* Language is required</span>}
 						</div>
 					</div>
 
-					<NavigationButton leftButton="BasicInfo" rightButton="Next" actionRightButton={handleSubmitForm} />
+					<NavigationButton
+						leftButton="firstPage"
+						rightButton="Next"
+						actionLeftButton={() => {}}
+						actionRightButton={handleSubmitForm}
+					/>
 				</div>
 			</Form>
 		</div>
 	);
 };
 
-export default BasicInfomationForm;
+export default BasicInformationForm;
