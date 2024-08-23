@@ -2,9 +2,46 @@
 
 .topNavBarContainer {
   :global {
-    
-    .ant-menu-title-content:hover {
+    width: 50vw;
+    .ant-menu-title-content {
       color: theme("colors.orange");
+    }
+
+    .ant-menu-overflow.ant-menu.ant-menu-root.ant-menu-horizontal.ant-menu-light.css-dev-only-do-not-override-m4timi > li{
+      text-align: center;
+
+      &:hover {
+        background-color: transparent;
+      }
+
+      @media(min-width: 1024px) {
+        width: 12.5vw;
+      }
+    }
+
+    :where(.css-dev-only-do-not-override-m4timi).ant-menu-light.ant-menu-horizontal > .ant-menu-item-selected::after,
+    :where(.css-dev-only-do-not-override-m4timi).ant-menu-light > .ant-menu.ant-menu-horizontal > .ant-menu-item-selected::after,
+    :where(.css-dev-only-do-not-override-m4timi).ant-menu-light.ant-menu-horizontal > .ant-menu-submenu-selected::after,
+    :where(.css-dev-only-do-not-override-m4timi).ant-menu-light > .ant-menu.ant-menu-horizontal > .ant-menu-submenu-selected::after {
+      border-bottom-color: theme("colors.orange") !important;
+    }
+
+    :where(.css-dev-only-do-not-override-m4timi).ant-menu-light.ant-menu-horizontal >.ant-menu-item:hover::after{
+      border-bottom: none !important;
+    }
+
+
+
+    .ant-menu-overflow.ant-menu.ant-menu-root.ant-menu-horizontal.ant-menu-light.css-dev-only-do-not-override-m4timi {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    @media(max-width: 1024px) {
+      :global {
+        width: 60vw;
+      }
     }
   }
 }

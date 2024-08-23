@@ -205,15 +205,14 @@ const BasicInformationForm = ({moveToNextForm}: {moveToNextForm: () => void;}) =
 							{errors.languageError && <span className="error-message">* Language is required</span>}
 						</div>
 					</div>
-
-					<NavigationButton
-						leftButton="firstPage"
-						rightButton="Next"
-						actionLeftButton={() => {}}
-						actionRightButton={handleSubmitForm}
-					/>
 				</div>
 			</Form>
+			<NavigationButton
+				leftButton="firstPage"
+				rightButton="Next"
+				actionLeftButton={() => {}}
+				actionRightButton={handleSubmitForm}
+			/>
 		</div>
 	);
 };

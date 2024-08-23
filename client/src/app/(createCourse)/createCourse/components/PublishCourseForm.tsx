@@ -28,7 +28,18 @@ const priceOptions = [
 	{ value: 100 },
 ];
 
-const initialInstructorOptions = [
+interface InstructorProps {
+	name: string;
+	role: string;
+}
+
+interface PublishCourseProps {
+	instructors: InstructorProps[];
+	currency: string;
+	price: number;
+}
+
+const initialInstructorOptions: InstructorProps[] = [
 	{
 		name: "JackJackJackJackJackJackJackJackJackJackJackJack",
 		role: "Instructor",
@@ -37,13 +48,18 @@ const initialInstructorOptions = [
 	{ name: "Tom", role: "VIP Instructor" },
 ];
 
-const PublishCourseForm = () => {
-	const [instructors, setInstructors] = useState<
-		{ name: string; role: string }[]
-	>([]);
-	const [availableInstructors, setAvailableInstructors] = useState(
-		initialInstructorOptions
-	);
+const defaultPublishCourse: PublishCourseProps = {
+	instructors: [],
+	currency: currencyOptions[0]?.value,
+	price: priceOptions[0]?.value,
+};
+
+const PublishCourseForm = ({moveToPreviousForm, handleSubmitForm}: {
+	moveToPreviousForm: () => void;
+	handleSubmitForm: () => void;
+}) => {
+	const [publishCourse, setPublishCourse] = useState<PublishCourseProps>(defaultPublishCourse);
+	const [availableInstructors, setAvailableInstructors] = useState(initialInstructorOptions);
 
 	const addInstructor = (instructorName: string) => {
 		const selectedInstructor = availableInstructors.find(
@@ -51,7 +67,13 @@ const PublishCourseForm = () => {
 		);
 
 		if (selectedInstructor) {
-			setInstructors([...instructors, selectedInstructor]);
+			setPublishCourse((prev) => {
+				const updatedInstructors = [...prev.instructors, selectedInstructor];
+				const newState: PublishCourseProps = { ...prev, instructors: updatedInstructors };
+				localStorage.setItem("publishCourse", JSON.stringify(newState));
+				return newState;
+			});
+
 			setAvailableInstructors((prev) =>
 				prev.map((instr) =>
 					instr.name === instructorName
@@ -63,44 +85,74 @@ const PublishCourseForm = () => {
 	};
 
 	const removeInstructor = (instructorName: string) => {
-		setInstructors(
-			instructors.filter((instr) => instr.name !== instructorName)
-		);
-		setAvailableInstructors(
-			availableInstructors.map((option) =>
-				option.name === instructorName
-					? { ...option, disabled: false }
-					: option
-			)
-		);
+		setPublishCourse((prev) => {
+			const updatedInstructors = prev.instructors.filter(
+				(instr) => instr.name !== instructorName
+			);
+
+			const newState = { ...prev, instructors: updatedInstructors };
+			localStorage.setItem("publishCourse", JSON.stringify(newState));
+			return newState;
+		});
+
+		setAvailableInstructors((prev) =>
+				prev.map((instr) =>
+					instr.name === instructorName
+						? { ...instr, disabled: true }
+						: instr
+				)
+			);
 	};
 
+	const handleSetPrice = (value: number) => {
+		setPublishCourse((prev) => {
+			const newState = { ...prev, price: value };
+			localStorage.setItem("publishCourse", JSON.stringify(newState));
+			return newState;
+		});
+	};
+
+	const handleSetCurrency = (value: string) => {
+		setPublishCourse((prev) => {
+			const newState = { ...prev, currency: value };
+			localStorage.setItem("publishCourse", JSON.stringify(newState));
+			return newState;
+		})
+	}
+
 	return (
-		<div className="w-full p-4">
+		<div className={styles.publishCourseFormContainer}>
 			<HeaderForm headerName="Publish Course" />
 			<hr className="mb-2" />
-			<div className={styles.publishCourseFormContainer}>
-				<SetPriceCard />
-				
-				<br />
+			<SetPriceCard 
+				handleSetPrice={handleSetPrice} 
+				handleSetCurrency={handleSetCurrency}
+			/>
+			
+			<br />
+			<AddInstructorCard
+				instructors={publishCourse.instructors}
+				availableInstructors={availableInstructors}
+				addInstructor={addInstructor}
+				removeInstructor={removeInstructor}
+			/>
 
-				<AddInstructorCard
-					instructors={instructors}
-					availableInstructors={availableInstructors}
-					addInstructor={addInstructor}
-					removeInstructor={removeInstructor}
-				/>
-
-				<NavigationButton
-					leftButton="Previous"
-					rightButton="Submit For Review"
-				/>
-			</div>
+			<NavigationButton
+				leftButton="Previous"
+				rightButton="Submit For Review"
+				actionLeftButton={() => moveToPreviousForm()}
+				actionRightButton={() => handleSubmitForm()}
+			/>
 		</div>
 	);
 };
 
-const SetPriceCard = () => {
+const SetPriceCard = ({
+	handleSetPrice, handleSetCurrency
+}: {
+	handleSetPrice: (value: number) => void;
+	handleSetCurrency: (value: string) => void;
+}) => {
 	return (
 		<div>
 			<Title level={4} className="sm:text-lg md:text-xl lg:text-2xl">
@@ -116,7 +168,7 @@ const SetPriceCard = () => {
 					<div className="flex flex-col md:w-1/3 lg:w-1/5">
 						<Title level={5}>Currency</Title>
 						<Form.Item name="currency">
-							<Select>
+							<Select onChange={handleSetCurrency}>
 								{currencyOptions.map((option) => (
 									<Select.Option
 										key={option.value}
@@ -131,7 +183,7 @@ const SetPriceCard = () => {
 					<div className="flex flex-col w-1/5">
 						<Title level={5}>Price</Title>
 						<Form.Item name="price">
-							<Select>
+							<Select onChange={handleSetPrice}>
 								{priceOptions.map((option) => (
 									<Select.Option
 										key={option.value}

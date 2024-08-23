@@ -52,12 +52,15 @@
 			outline: none;
 			box-shadow: none;
 
-
 			&:hover {
 				opacity: 0.8;
-				color: theme("colors.orange");
+				color: theme("colors.orange") !important;
 			}
-		}
+
+			&:disabled {
+				background-color : theme("colors.gray.light");
+			}
+		} 
 
 		.btn-add-item{
 			border: none;
@@ -68,7 +71,7 @@
 
 			&:hover {
 				background-color: #FFEEE8;
-				color: theme("colors.orange");
+				color: theme("colors.orange") !important;
 				opacity: 0.8;
 			}
 		}
@@ -160,6 +163,10 @@
 			&:hover {
 				border-color: theme("colors.orange");
 			}
+		}
+
+		.error-message {
+			color: red;
 		}
 	}
 }

@@ -8,30 +8,28 @@ import CurriculumForm from "./CurriculumForm";
 import PublishCourseForm from "./PublishCourseForm";
 
 const items = [
-	{
-		label: "Basic Information",
-		key: "basic-information",
-	},
-	{
-		label: "Advance Information",
-		key: "advance-information",
-	},
-	{
-		label: "Curriculum",
-		key: "curriculum",
-	},
-	{
-		label: "Publish Course",
-		key: "publish-course",
-	},
+	{ label: "Basic Information", key: "basic-information" },
+	{ label: "Advance Information", key: "advance-information" },
+	{ label: "Curriculum", key: "curriculum" },
+	{ label: "Publish Course", key: "publish-course" },
 ];
 
-const CreateCourseForm = () => {
-	const [selectedKey, setSelectedKey] = useState(items[1]?.key);
+interface CreateFormProps {
+	basicInformation: {};
+	advanceInformation: {};
+	curriculum: {};
+	publishCourse: {};
+}
 
-	const handleClick = (e: { key: React.SetStateAction<string>; }) => {
-		setSelectedKey(e.key);
-	}
+const CreateCourseForm = () => {
+	const [selectedKey, setSelectedKey] = useState(items[0]?.key);
+
+	const [createForm, setCreateForm] = useState<CreateFormProps>({
+		basicInformation: {},
+		advanceInformation: {},
+		curriculum: {},
+		publishCourse: {},
+	});
 
 	const handleNextButton = () => {
 		const currentIndex = items.findIndex((item) => item.key === selectedKey);
@@ -47,23 +45,71 @@ const CreateCourseForm = () => {
 		}
 	}
 
+	const handleSubmitForm = () => {
+		const basicInformation = window.localStorage.getItem("basicInformation");
+		const advanceInformation = window.localStorage.getItem("advanceInformation");
+		const curriculum = window.localStorage.getItem("curriculumInformation");
+		const publishCourse = window.localStorage.getItem("publishCourse");
+		
+		setCreateForm({
+			basicInformation: basicInformation ? JSON.parse(basicInformation) : {},
+			advanceInformation: advanceInformation ? JSON.parse(advanceInformation) : {},
+			curriculum: curriculum ? JSON.parse(curriculum) : {},
+			publishCourse: publishCourse ? JSON.parse(publishCourse) : {},
+		});
+
+		console.log("Form Submitted: ", createForm);
+
+		window.localStorage.removeItem("basicInformation");
+		window.localStorage.removeItem("advanceInformation");
+		window.localStorage.removeItem("curriculumInformation");
+		window.localStorage.removeItem("publishCourse");
+		
+		const removedKey: string[] = [];
+		for (let i in localStorage) {
+			if (i.includes(`selectedItemType-`)) {
+				removedKey.push(i);
+			}
+			if (i.includes(`selectedContentType-`)) {
+				removedKey.push(i);
+			}
+		}
+
+		removedKey.forEach((key) => {
+			localStorage.removeItem(key);
+		});
+	}
+
 	return (
 		<div className={styles.topNavBarContainer}>
-			<Menu mode="horizontal" items={items} onClick={handleClick} selectedKeys={[selectedKey]}>
+			<Menu mode="horizontal" items={items} selectedKeys={[selectedKey]}>
 				{
 					items.map((item) => (
 						<Menu.Item key={item.key}>{item.label}</Menu.Item>
 					))
 				}
 			</Menu>
-			{selectedKey === "basic-information" && <BasicInfomationForm moveToNextForm={() => handleNextButton()} />}
+			{selectedKey === "basic-information" && 
+				<BasicInfomationForm moveToNextForm={() => handleNextButton()} />
+			}
+			
 			{selectedKey === "advance-information" && 
 				<AdvanceInformationForm 
 					moveToPreviousForm={() => handlePreviousButton()} 
-					moveToNextForm={() => handleNextButton()} />}
+					moveToNextForm={() => handleNextButton()} />
+			}
 
-			{/* {selectedKey === "curriculum" && <CurriculumForm moveToPreviousForm={handlePreviousButton} moveToNextForm={handleNextButton()} />}
-			{selectedKey === "publish-course" && <PublishCourseForm moveToPreviousForm={handlePreviousButton} />} */}
+			{selectedKey === "curriculum" && 
+				<CurriculumForm 
+				moveToPreviousForm={() => handlePreviousButton()} 
+				moveToNextForm={() => handleNextButton()} />
+			}
+
+			{selectedKey === "publish-course" && 
+				<PublishCourseForm 
+					moveToPreviousForm={handlePreviousButton} 
+					handleSubmitForm={handleSubmitForm}
+				/>}
 		</div>
 	);
 };

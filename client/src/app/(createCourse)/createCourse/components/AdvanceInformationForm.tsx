@@ -151,7 +151,11 @@ const ObjectifsSection = ({
 									<CloseCircleOutlined />
 									<span> Objectif must have two items.</span>
 								</> : ""}>
-								<Button className="buttonDeleteItem" onClick={() => deleteItemObjectif(index)}>
+								<Button 
+									className="buttonDeleteItem" 
+									onClick={() => deleteItemObjectif(index)}
+									disabled={listOfObjectifsValue.length <= 2 && index <= 2}
+								>
 									<CloseOutlined />
 								</Button>
 							</Tooltip>
@@ -232,7 +236,11 @@ const RequirementsSection = ({
 									<CloseCircleOutlined />
 									<span> Objectif must have two items.</span>
 								</> : ""}>
-								<Button className="buttonDeleteItem" onClick={() => deleteItemRequirement(index)}>
+								<Button 
+									className="buttonDeleteItem" 
+									onClick={() => deleteItemRequirement(index)}
+									disabled={listOfRequirementsValue.length <= 2 && index <= 2}
+								>
 									<CloseOutlined />
 								</Button>
 							</Tooltip>
@@ -310,6 +318,13 @@ const AdvanceInformationForm = ({
 		};
 
 		setErrors(newErrors);
+
+		if (Object.values(newErrors).every((errorArray) => errorArray.every((error) => !error))) {
+			console.log("Form submitted: ", advanceInformation);
+			moveToNextForm();
+		} else {
+			console.log("Errors: ", newErrors);
+		}
 	};
 
 	return (
