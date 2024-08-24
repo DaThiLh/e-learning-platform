@@ -43,9 +43,9 @@ model Answer {
 }
 
 model Category {
-  category_id   Int          @id @db.UnsignedTinyInt
-  category_name String       @db.VarChar(50)
-  SubCategory   SubCategory?
+  category_id   Int           @id @db.UnsignedTinyInt
+  category_name String        @db.VarChar(50)
+  SubCategory   SubCategory[]
 }
 
 model Course {
@@ -73,6 +73,7 @@ model Course {
 
   @@index([subcategory_id], map: "FK_Course_SubCategory")
   @@index([tier_id], map: "FK_Course_Tier")
+  @@index([title], map: "idx_title_on_course")
 }
 
 model CourseHighlight {
@@ -132,7 +133,7 @@ model EnrollementCourse {
   course_id              Int               @db.UnsignedMediumInt
   learner_id             Int               @db.UnsignedMediumInt
   course_completion_date DateTime?         @db.Date
-  course_rating          Int?              @db.UnsignedSmallInt
+  course_rating          Int?              @default(0) @db.UnsignedSmallInt
   course_comment         String?           @db.VarChar(2000)
   final_course_price     Int               @db.UnsignedMediumInt
   payment_id             Int               @db.UnsignedMediumInt
@@ -208,7 +209,8 @@ model Learner {
   learner_default_language String              @db.VarChar(20)
   EnrollementCourse        EnrollementCourse[]
   User                     User                @relation(fields: [learner_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Learner_User")
-  ShoppingCart             ShoppingCart?
+  Payment                  Payment[]
+  ShoppingCart             ShoppingCart[]
 }
 
 model Lecture {
@@ -269,24 +271,31 @@ model Notification {
 model Payment {
   id                Int                 @id @default(autoincrement()) @db.UnsignedMediumInt
   date              DateTime            @default(now()) @db.DateTime(0)
-  total_price       Int                 @db.UnsignedMediumInt
-  total_course      Int                 @db.UnsignedMediumInt
+  total_price       Int?                @default(0) @db.UnsignedMediumInt
+  total_course      Int?                @default(0) @db.UnsignedMediumInt
+  learner_id        Int                 @db.UnsignedMediumInt
   EnrollementCourse EnrollementCourse[]
+  Learner           Learner             @relation(fields: [learner_id], references: [learner_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Payment_Learner")
+
+  @@index([learner_id], map: "FK_Payment_Learner")
+  @@index([date], map: "idx_date_on_payment")
 }
 
 model PromotionalProgram {
-  id                        Int                               @id @default(autoincrement()) @db.UnsignedTinyInt
-  name                      String                            @db.VarChar(80)
-  content                   String                            @db.VarChar(10000)
-  day_start                 DateTime                          @db.Date
-  day_end                   DateTime                          @db.Date
-  repeating_type            PromotionalProgram_repeating_type
-  tier_difference           Int                               @db.UnsignedTinyInt
+  id                        Int                         @id @default(autoincrement()) @db.UnsignedInt
+  name                      String                      @db.VarChar(80)
+  content                   String                      @db.VarChar(10000)
+  day_start                 DateTime                    @db.Date
+  day_end                   DateTime                    @db.Date
+  tier_difference           Int                         @db.UnsignedTinyInt
   PromotionalProgramHistory PromotionalProgramHistory[]
+
+  @@index([day_start, day_end, tier_difference], map: "idx_date_and_tied_difference_on_promotional_programm")
+  @@index([day_start, day_end, tier_difference], map: "idx_date_and_tier_difference_on_promotional_programm")
 }
 
 model PromotionalProgramHistory {
-  id                 Int                @db.UnsignedTinyInt
+  id                 Int                @db.UnsignedInt
   create_at          DateTime           @default(now()) @db.DateTime(0)
   tier_difference    Int                @db.UnsignedTinyInt
   PromotionalProgram PromotionalProgram @relation(fields: [id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_PromotionalProgramHistory_PromotionalProgram")
@@ -371,7 +380,7 @@ model Section {
   course_id      Int            @db.UnsignedMediumInt
   title          String         @db.VarChar(80)
   number_of_item Int            @default(0) @db.UnsignedSmallInt
-  duration       DateTime       @db.Time(0)
+  duration       DateTime?      @default(dbgenerated("'00:00:00'")) @db.Time(0)
   status         Section_status @default(pending)
   Item           Item[]
   Course         Course         @relation(fields: [course_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Section_Course")
@@ -384,7 +393,7 @@ model Section {
 model SectionOrder {
   section_id       Int     @db.UnsignedSmallInt
   course_id        Int     @db.UnsignedMediumInt
-  order_section_id Int     @db.UnsignedSmallInt
+  order_section_id Int?    @db.UnsignedSmallInt
   priority         Int     @default(0) @db.UnsignedTinyInt
   Section          Section @relation(fields: [course_id, section_id], references: [course_id, id], onDelete: NoAction, onUpdate: NoAction, map: "FK_SectionOrder_Section")
 
@@ -392,11 +401,12 @@ model SectionOrder {
 }
 
 model ShoppingCart {
-  learner_id Int     @id @db.UnsignedMediumInt
+  learner_id Int     @db.UnsignedMediumInt
   course_id  Int     @db.UnsignedMediumInt
   Learner    Learner @relation(fields: [learner_id], references: [learner_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Learner")
   Course     Course  @relation(fields: [course_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_ShoppingCart_Course")
 
+  @@id([learner_id, course_id])
   @@index([course_id], map: "FK_ShoppingCart_Course")
 }
 
@@ -420,7 +430,9 @@ model SubCategory {
   name        String   @db.VarChar(50)
   category_id Int      @db.UnsignedTinyInt
   Course      Course[]
-  Category    Category @relation(fields: [id], references: [category_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_SubCategory_Category")
+  Category    Category @relation(fields: [category_id], references: [category_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_SubCategory_Category")
+
+  @@index([category_id], map: "FK_SubCategory_Category")
 }
 
 model Tier {
@@ -466,12 +478,6 @@ enum Notification_notification_type {
 enum Item_item_type {
   lecture
   quiz
-}
-
-enum PromotionalProgram_repeating_type {
-  weekly
-  monthly
-  yearly
 }
 
 enum Section_status {

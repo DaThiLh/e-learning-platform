@@ -1,13 +1,5 @@
--- use this file to create table on the database
--- drop database if exists defaultdb;
-
-
--- create database defaultdb;
-
-
+-- drop database ifefaultdb;
 -- use defaultdb;
-
-
 CREATE TABLE
   User (
     id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -19,7 +11,8 @@ CREATE TABLE
     CONSTRAINT PK_User PRIMARY KEY (id)
   ) DEFAULT CHARACTER
 SET
-  utf8mb4 COLLATE utf8mb4_unicode_ci;
+  utf8mb4 COLLATE utf8mb4_unicode_ci 
+  ENGINE = InnoDB;
 
 
 CREATE TABLE
@@ -29,7 +22,8 @@ CREATE TABLE
     CONSTRAINT FK_Admin_User FOREIGN KEY (admin_id) REFERENCES User (id)
   ) DEFAULT CHARACTER
 SET
-  utf8mb4 COLLATE utf8mb4_unicode_ci;
+  utf8mb4 COLLATE utf8mb4_unicode_ci
+  ENGINE = InnoDB;
 
 
 CREATE TABLE
@@ -40,7 +34,8 @@ CREATE TABLE
     CONSTRAINT FK_Learner_User FOREIGN KEY (learner_id) REFERENCES User (id)
   ) DEFAULT CHARACTER
 SET
-  utf8mb4 COLLATE utf8mb4_unicode_ci;
+  utf8mb4 COLLATE utf8mb4_unicode_ci
+  ENGINE = InnoDB;
 
 
 CREATE TABLE
@@ -58,7 +53,8 @@ CREATE TABLE
     CONSTRAINT FK_Instructor_User FOREIGN KEY (instructor_id) REFERENCES User (id)
   ) DEFAULT CHARACTER
 SET
-  utf8mb4 COLLATE utf8mb4_unicode_ci;
+  utf8mb4 COLLATE utf8mb4_unicode_ci
+  ENGINE = InnoDB;
 
 
 CREATE TABLE
@@ -73,7 +69,8 @@ CREATE TABLE
     CONSTRAINT FK_VipInstructor_Instructor FOREIGN KEY (vip_instructor_id) REFERENCES Instructor (instructor_id)
   ) DEFAULT CHARACTER
 SET
-  utf8mb4 COLLATE utf8mb4_unicode_ci;
+  utf8mb4 COLLATE utf8mb4_unicode_ci
+  ENGINE = InnoDB;
 
 
 CREATE TABLE
@@ -83,7 +80,8 @@ CREATE TABLE
     CONSTRAINT PK_Category PRIMARY KEY (category_id)
   ) DEFAULT CHARACTER
 SET
-  utf8mb4 COLLATE utf8mb4_unicode_ci;
+  utf8mb4 COLLATE utf8mb4_unicode_ci
+  ENGINE = InnoDB;
 
 
 CREATE TABLE
@@ -92,12 +90,12 @@ CREATE TABLE
     name VARCHAR(50) NOT NULL,
     category_id TINYINT UNSIGNED NOT NULL,
     CONSTRAINT PK_SubCategory PRIMARY KEY (id),
-    CONSTRAINT FK_SubCategory_Category FOREIGN KEY (id) REFERENCES Category (category_id)
+    CONSTRAINT FK_SubCategory_Category FOREIGN KEY (category_id) REFERENCES Category (category_id)
   ) DEFAULT CHARACTER
 SET
-  utf8mb4 COLLATE utf8mb4_unicode_ci;
-
-
+  utf8mb4 COLLATE utf8mb4_unicode_ci
+  ENGINE = InnoDB;
+  
 CREATE TABLE
   Tier (
     id TINYINT UNSIGNED AUTO_INCREMENT,
@@ -105,7 +103,8 @@ CREATE TABLE
     CONSTRAINT PK_Tier PRIMARY KEY (id)
   ) DEFAULT CHARACTER
 SET
-  utf8mb4 COLLATE utf8mb4_unicode_ci;
+  utf8mb4 COLLATE utf8mb4_unicode_ci
+  ENGINE = InnoDB;
 
 
 CREATE TABLE
@@ -125,7 +124,8 @@ CREATE TABLE
     CONSTRAINT FK_Course_Tier FOREIGN KEY (tier_id) REFERENCES Tier (id)
   ) DEFAULT CHARACTER
 SET
-  utf8mb4 COLLATE utf8mb4_unicode_ci;
+  utf8mb4 COLLATE utf8mb4_unicode_ci
+  ENGINE = InnoDB;
 
 
 CREATE TABLE
@@ -136,8 +136,8 @@ CREATE TABLE
     CONSTRAINT FK_CourseObjective_Course FOREIGN KEY (course_id) REFERENCES Course (id)
   ) DEFAULT CHARACTER
 SET
-  utf8mb4 COLLATE utf8mb4_unicode_ci;
-
+  utf8mb4 COLLATE utf8mb4_unicode_ci
+  ENGINE = InnoDB;
 
 CREATE TABLE
   Section (
@@ -145,24 +145,26 @@ CREATE TABLE
     course_id MEDIUMINT UNSIGNED NOT NULL,
     title VARCHAR(80) NOT NULL,
     number_of_item SMALLINT UNSIGNED NOT NULL DEFAULT 0,
-    duration TIME NOT NULL,
+    duration TIME,
     status ENUM ('pending', 'publish', 'unpublish') NOT NULL DEFAULT 'pending',
     CONSTRAINT PK_Section PRIMARY KEY (course_id, id),
     CONSTRAINT FK_Section_Course FOREIGN KEY (course_id) REFERENCES Course (id),
     INDEX idx_id (course_id, id)
   ) DEFAULT CHARACTER
 SET
-  utf8mb4 COLLATE utf8mb4_unicode_ci;
-
+  utf8mb4 COLLATE utf8mb4_unicode_ci
+  ENGINE = InnoDB;
 
 CREATE TABLE SectionOrder (
-    section_id SMALLINT UNSIGNED NOT NULL,
-    course_id MEDIUMINT UNSIGNED NOT NULL,
-    order_section_id SMALLINT UNSIGNED NOT NULL,
+    section_id SMALLINT UNSIGNED,
+    course_id MEDIUMINT UNSIGNED,
+    order_section_id SMALLINT UNSIGNED,
     priority TINYINT UNSIGNED NOT NULL DEFAULT 0,
     CONSTRAINT PK_SectionOrder PRIMARY KEY (course_id, section_id),
     CONSTRAINT FK_SectionOrder_Section FOREIGN KEY (course_id, section_id) REFERENCES Section (course_id, id)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+ENGINE = InnoDB;
+
 
 CREATE TABLE Item (
     id SMALLINT UNSIGNED NOT NULL,
@@ -174,7 +176,8 @@ CREATE TABLE Item (
     CONSTRAINT PK_Item PRIMARY KEY (id, section_id, course_id),
     INDEX idx_id (id, section_id, course_id),
     CONSTRAINT FK_Item_Section FOREIGN KEY (course_id, section_id) REFERENCES Section (course_id, id)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+ENGINE = InnoDB;
 
 CREATE TABLE ItemOrder (
     item_id SMALLINT UNSIGNED NOT NULL,
@@ -184,7 +187,7 @@ CREATE TABLE ItemOrder (
     priority TINYINT UNSIGNED NOT NULL DEFAULT 0,
     CONSTRAINT PK_ItemOrder PRIMARY KEY (item_id, section_id, course_id),
     CONSTRAINT FK_ItemOrder_Item FOREIGN KEY (item_id, section_id, course_id) REFERENCES Item (id, section_id, course_id)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
 
 
 CREATE TABLE
@@ -197,7 +200,8 @@ CREATE TABLE
     CONSTRAINT FK_ItemHistory_Item FOREIGN KEY (item_id, section_id, course_id) REFERENCES Item (id, section_id, course_id)
   ) DEFAULT CHARACTER
 SET
-  utf8mb4 COLLATE utf8mb4_unicode_ci;
+  utf8mb4 COLLATE utf8mb4_unicode_ci
+  ENGINE = InnoDB;
 
 
 CREATE TABLE
@@ -212,7 +216,8 @@ CREATE TABLE
     CONSTRAINT FK_Lecture_Item FOREIGN KEY (id, section_id, course_id) REFERENCES Item (id, section_id, course_id)
   ) DEFAULT CHARACTER
 SET
-  utf8mb4 COLLATE utf8mb4_unicode_ci;
+  utf8mb4 COLLATE utf8mb4_unicode_ci
+  ENGINE = InnoDB;
 
 
 CREATE TABLE
@@ -226,7 +231,8 @@ CREATE TABLE
     CONSTRAINT FK_LectureSubtitle_Lecture FOREIGN KEY (lecture_id, section_id, course_id) REFERENCES Lecture (id, section_id, course_id)
   ) DEFAULT CHARACTER
 SET
-  utf8mb4 COLLATE utf8mb4_unicode_ci;
+  utf8mb4 COLLATE utf8mb4_unicode_ci
+  ENGINE = InnoDB;
 
 
 CREATE TABLE
@@ -238,7 +244,8 @@ CREATE TABLE
     CONSTRAINT FK_Quiz_Item FOREIGN KEY (id, section_id, course_id) REFERENCES Item (id, section_id, course_id)
   ) DEFAULT CHARACTER
 SET
-  utf8mb4 COLLATE utf8mb4_unicode_ci;
+  utf8mb4 COLLATE utf8mb4_unicode_ci
+  ENGINE = InnoDB;
 
 
 CREATE TABLE
@@ -253,7 +260,8 @@ CREATE TABLE
     CONSTRAINT FK_QuizQA_Quiz FOREIGN KEY (quiz_id, section_id, course_id) REFERENCES Quiz (id, section_id, course_id) 
   ) DEFAULT CHARACTER
 SET
-  utf8mb4 COLLATE utf8mb4_unicode_ci;
+  utf8mb4 COLLATE utf8mb4_unicode_ci
+  ENGINE = InnoDB;
 
 
 CREATE TABLE
@@ -269,7 +277,8 @@ CREATE TABLE
     CONSTRAINT FK_QuizQAAnswerDetail_Quiz FOREIGN KEY (quiz_id, section_id, course_id) REFERENCES Quiz (id, section_id, course_id) 
   ) DEFAULT CHARACTER
 SET
-  utf8mb4 COLLATE utf8mb4_unicode_ci;
+  utf8mb4 COLLATE utf8mb4_unicode_ci
+  ENGINE = InnoDB;
 
 CREATE TABLE QuizQAAnswerMapping (
   quiz_id SMALLINT UNSIGNED NOT NULL,
@@ -281,7 +290,8 @@ CREATE TABLE QuizQAAnswerMapping (
   CONSTRAINT PK_QuizQAAnswerMapping PRIMARY KEY (quiz_id, section_id, course_id, quiz_qa_id, answer_detail_id),
   CONSTRAINT FK_QuizQAAnswerMapping_QuizQA FOREIGN KEY (quiz_id, section_id, course_id, quiz_qa_id) REFERENCES QuizQA (quiz_id, section_id, course_id, id),
   CONSTRAINT FK_QuizQAAnswerMapping_QuizQAAnswerDetail FOREIGN KEY (quiz_id, section_id, course_id, answer_detail_id) REFERENCES QuizQAAnswerDetail (quiz_id, section_id, course_id, id)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+  ENGINE = InnoDB;
 
 
 CREATE TABLE
@@ -298,7 +308,8 @@ CREATE TABLE
     CONSTRAINT FK_Question_User FOREIGN KEY (user_id) REFERENCES User (id)
   ) DEFAULT CHARACTER
 SET
-  utf8mb4 COLLATE utf8mb4_unicode_ci;
+  utf8mb4 COLLATE utf8mb4_unicode_ci
+  ENGINE = InnoDB;
 
 
 CREATE TABLE
@@ -322,7 +333,8 @@ CREATE TABLE
     CONSTRAINT FK_Answer_User FOREIGN KEY (user_id) REFERENCES User (id)
   ) DEFAULT CHARACTER
 SET
-  utf8mb4 COLLATE utf8mb4_unicode_ci;
+  utf8mb4 COLLATE utf8mb4_unicode_ci
+  ENGINE = InnoDB;
 
 
 CREATE TABLE
@@ -334,27 +346,26 @@ CREATE TABLE
     CONSTRAINT FK_ShoppingCart_Course FOREIGN KEY (course_id) REFERENCES Course (id)
   ) DEFAULT CHARACTER
 SET
-  utf8mb4 COLLATE utf8mb4_unicode_ci;
+  utf8mb4 COLLATE utf8mb4_unicode_ci
+  ENGINE = InnoDB;
 
 
-CREATE TABLE
-  Payment (
+CREATE TABLE Payment (
     id MEDIUMINT UNSIGNED AUTO_INCREMENT,
     date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    total_price MEDIUMINT UNSIGNED NOT NULL,
-    total_course MEDIUMINT UNSIGNED NOT NULL,
-    CONSTRAINT PK_Payment PRIMARY KEY (id)
-  ) DEFAULT CHARACTER
-SET
-  utf8mb4 COLLATE utf8mb4_unicode_ci;
-
+    total_price MEDIUMINT UNSIGNED DEFAULT 0,
+    total_course MEDIUMINT UNSIGNED DEFAULT 0,
+    learner_id MEDIUMINT UNSIGNED NOT NULL,
+    CONSTRAINT PK_Payment PRIMARY KEY (id),
+    CONSTRAINT FK_Payment_Learner FOREIGN KEY (learner_id) REFERENCES Learner (learner_id)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
 
 CREATE TABLE
   EnrollementCourse (
     course_id MEDIUMINT UNSIGNED NOT NULL,
     learner_id MEDIUMINT UNSIGNED NOT NULL,
     course_completion_date DATE,
-    course_rating SMALLINT UNSIGNED,
+    course_rating SMALLINT UNSIGNED DEFAULT 0,
     course_comment VARCHAR(2000),
     final_course_price MEDIUMINT UNSIGNED NOT NULL,
     payment_id MEDIUMINT UNSIGNED NOT NULL,
@@ -364,7 +375,8 @@ CREATE TABLE
     CONSTRAINT FK_Payment FOREIGN KEY (payment_id) REFERENCES Payment (id)
   ) DEFAULT CHARACTER
 SET
-  utf8mb4 COLLATE utf8mb4_unicode_ci;
+  utf8mb4 COLLATE utf8mb4_unicode_ci
+  ENGINE = InnoDB;
 
 
 CREATE TABLE
@@ -380,7 +392,8 @@ CREATE TABLE
     CONSTRAINT FK_StudentAnswerQA_EnrollementCourse FOREIGN KEY (course_id, learner_id) REFERENCES EnrollementCourse (course_id, learner_id)
   ) DEFAULT CHARACTER
 SET
-  utf8mb4 COLLATE utf8mb4_unicode_ci;
+  utf8mb4 COLLATE utf8mb4_unicode_ci
+  ENGINE = InnoDB;
 
 
 -- Thu
@@ -394,7 +407,8 @@ CREATE TABLE
     CONSTRAINT FK_CourseInstructor_Instructor FOREIGN KEY (instructor_id) REFERENCES Instructor (instructor_id)
   ) DEFAULT CHARACTER
 SET
-  utf8mb4 COLLATE utf8mb4_unicode_ci;
+  utf8mb4 COLLATE utf8mb4_unicode_ci
+  ENGINE = InnoDB;
 
 
 CREATE TABLE
@@ -411,7 +425,8 @@ CREATE TABLE
     -- )
   ) DEFAULT CHARACTER
 SET
-  utf8mb4 COLLATE utf8mb4_unicode_ci;
+  utf8mb4 COLLATE utf8mb4_unicode_ci
+  ENGINE = InnoDB;
 
 
 CREATE TABLE
@@ -425,7 +440,8 @@ CREATE TABLE
     CONSTRAINT FK_CourseProgress_Item FOREIGN KEY (course_id, section_id, item_id) REFERENCES Item (course_id, section_id, id)
   ) DEFAULT CHARACTER
 SET
-  utf8mb4 COLLATE utf8mb4_unicode_ci;
+  utf8mb4 COLLATE utf8mb4_unicode_ci
+  ENGINE = InnoDB;
 
 
 CREATE TABLE
@@ -439,7 +455,8 @@ CREATE TABLE
     CONSTRAINT FK_Adjustment_Admin FOREIGN KEY (admin_id) REFERENCES Admin (admin_id)
   ) DEFAULT CHARACTER
 SET
-  utf8mb4 COLLATE utf8mb4_unicode_ci;
+  utf8mb4 COLLATE utf8mb4_unicode_ci
+  ENGINE = InnoDB;
 
 
 CREATE TABLE
@@ -458,34 +475,35 @@ CREATE TABLE
     CONSTRAINT FK_Notification_Course FOREIGN KEY (course_id) REFERENCES Course (id)
   ) DEFAULT CHARACTER
 SET
-  utf8mb4 COLLATE utf8mb4_unicode_ci;
+  utf8mb4 COLLATE utf8mb4_unicode_ci
+  ENGINE = InnoDB;
 
 
 CREATE TABLE
   PromotionalProgram (
-    id TINYINT UNSIGNED AUTO_INCREMENT,
+    id INT UNSIGNED AUTO_INCREMENT,
     name VARCHAR(80) NOT NULL,
     content VARCHAR(10000) NOT NULL,
     day_start DATE NOT NULL,
     day_end DATE NOT NULL,
-    repeating_type ENUM ('weekly', 'monthly', 'yearly') NOT NULL,
     tier_difference TINYINT UNSIGNED NOT NULL,
     CONSTRAINT PK_PromotionalProgram PRIMARY KEY (id)
   ) DEFAULT CHARACTER
 SET
-  utf8mb4 COLLATE utf8mb4_unicode_ci;
-
+  utf8mb4 COLLATE utf8mb4_unicode_ci
+  ENGINE = InnoDB;
 
 CREATE TABLE
   PromotionalProgramHistory (
-    id TINYINT UNSIGNED NOT NULL,
+    id INT UNSIGNED NOT NULL,
     create_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     tier_difference TINYINT UNSIGNED NOT NULL,
     CONSTRAINT PK_PromotionalProgramHistory PRIMARY KEY (id, create_at),
     CONSTRAINT FK_PromotionalProgramHistory_PromotionalProgram FOREIGN KEY (id) REFERENCES PromotionalProgram (id)
   ) DEFAULT CHARACTER
 SET
-  utf8mb4 COLLATE utf8mb4_unicode_ci;
+  utf8mb4 COLLATE utf8mb4_unicode_ci
+  ENGINE = InnoDB;
 
 
 CREATE TABLE
@@ -501,7 +519,8 @@ CREATE TABLE
     CONSTRAINT FK_CourseHighlight_Course FOREIGN KEY (id) REFERENCES Course (id)
   ) DEFAULT CHARACTER
 SET
-  utf8mb4 COLLATE utf8mb4_unicode_ci;
+  utf8mb4 COLLATE utf8mb4_unicode_ci
+  ENGINE = InnoDB;
 
 
 CREATE TABLE
@@ -513,7 +532,8 @@ CREATE TABLE
     CONSTRAINT FK_MonthlyCourseIncome_Course FOREIGN KEY (course_id) REFERENCES Course (id)
   ) DEFAULT CHARACTER
 SET
-  utf8mb4 COLLATE utf8mb4_unicode_ci;
+  utf8mb4 COLLATE utf8mb4_unicode_ci
+  ENGINE = InnoDB;
 
 
 CREATE TABLE
@@ -527,9 +547,14 @@ CREATE TABLE
     CONSTRAINT FK_MonthlyCourseIncomeVipInstructor_VipInstructor FOREIGN KEY (vip_instructor_id) REFERENCES VipInstructor (vip_instructor_id)
   ) DEFAULT CHARACTER
 SET
-  utf8mb4 COLLATE utf8mb4_unicode_ci;
+  utf8mb4 COLLATE utf8mb4_unicode_ci
+  ENGINE = InnoDB;
 
 alter table Course auto_increment = 1;
 alter table Tier auto_increment = 1;
 alter table Payment auto_increment = 1;
 alter table PromotionalProgram auto_increment = 1;
+
+
+create index idx_title_on_course on Course (title);
+create index idx_date_on_payment on Payment (date);
