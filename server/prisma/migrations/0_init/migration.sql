@@ -91,13 +91,12 @@ CREATE TABLE
     name VARCHAR(50) NOT NULL,
     category_id TINYINT UNSIGNED NOT NULL,
     CONSTRAINT PK_SubCategory PRIMARY KEY (id),
-    CONSTRAINT FK_SubCategory_Category FOREIGN KEY (id) REFERENCES Category (category_id)
+    CONSTRAINT FK_SubCategory_Category FOREIGN KEY (category_id) REFERENCES Category (category_id)
   ) DEFAULT CHARACTER
 SET
   utf8mb4 COLLATE utf8mb4_unicode_ci
   ENGINE = InnoDB;
-
-
+  
 CREATE TABLE
   Tier (
     id TINYINT UNSIGNED AUTO_INCREMENT,
@@ -147,7 +146,7 @@ CREATE TABLE
     course_id MEDIUMINT UNSIGNED NOT NULL,
     title VARCHAR(80) NOT NULL,
     number_of_item SMALLINT UNSIGNED NOT NULL DEFAULT 0,
-    duration TIME,
+    duration TIME DEFAULT '00:00:00',
     status ENUM ('pending', 'publish', 'unpublish') NOT NULL DEFAULT 'pending',
     CONSTRAINT PK_Section PRIMARY KEY (course_id, id),
     CONSTRAINT FK_Section_Course FOREIGN KEY (course_id) REFERENCES Course (id),
@@ -351,20 +350,15 @@ SET
   utf8mb4 COLLATE utf8mb4_unicode_ci
   ENGINE = InnoDB;
 
-
-CREATE TABLE
-  Payment (
+CREATE TABLE Payment (
     id MEDIUMINT UNSIGNED AUTO_INCREMENT,
     date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     total_price MEDIUMINT UNSIGNED DEFAULT 0,
     total_course MEDIUMINT UNSIGNED DEFAULT 0,
     learner_id MEDIUMINT UNSIGNED NOT NULL,
-    CONSTRAINT PK_Payment PRIMARY KEY (id)
+    CONSTRAINT PK_Payment PRIMARY KEY (id),
     CONSTRAINT FK_Payment_Learner FOREIGN KEY (learner_id) REFERENCES Learner (learner_id)
-  ) DEFAULT CHARACTER
-SET
-  utf8mb4 COLLATE utf8mb4_unicode_ci
-  ENGINE = InnoDB;
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB;
 
 CREATE TABLE
   EnrollementCourse (
@@ -401,8 +395,6 @@ SET
   utf8mb4 COLLATE utf8mb4_unicode_ci
   ENGINE = InnoDB;
 
-
--- Thu
 CREATE TABLE
   CourseInstructor (
     course_id MEDIUMINT UNSIGNED NOT NULL,
@@ -487,12 +479,11 @@ SET
 
 CREATE TABLE
   PromotionalProgram (
-    id TINYINT UNSIGNED AUTO_INCREMENT,
+    id INT UNSIGNED AUTO_INCREMENT,
     name VARCHAR(80) NOT NULL,
     content VARCHAR(10000) NOT NULL,
     day_start DATE NOT NULL,
     day_end DATE NOT NULL,
-    repeating_type ENUM ('weekly', 'monthly', 'yearly') NOT NULL,
     tier_difference TINYINT UNSIGNED NOT NULL,
     CONSTRAINT PK_PromotionalProgram PRIMARY KEY (id)
   ) DEFAULT CHARACTER
@@ -500,10 +491,9 @@ SET
   utf8mb4 COLLATE utf8mb4_unicode_ci
   ENGINE = InnoDB;
 
-
 CREATE TABLE
   PromotionalProgramHistory (
-    id TINYINT UNSIGNED NOT NULL,
+    id INT UNSIGNED NOT NULL,
     create_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     tier_difference TINYINT UNSIGNED NOT NULL,
     CONSTRAINT PK_PromotionalProgramHistory PRIMARY KEY (id, create_at),
@@ -563,6 +553,3 @@ alter table Tier auto_increment = 1;
 alter table Payment auto_increment = 1;
 alter table PromotionalProgram auto_increment = 1;
 
-
-create index idx_title_on_course on Course (title);
-create index idx_date_on_payment on Payment (date);

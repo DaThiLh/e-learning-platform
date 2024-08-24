@@ -1,70 +1,213 @@
 -- use mysql;
 use defaultdb;
 
--- Truy vấn 1: Xem các khóa học đã tạo .
+
+-- (27) Cập nhật giá bán khóa học.
+drop PROCEDURE update_sale_price_course_highlight;
 DELIMITER //
 
-CREATE PROCEDURE get_courses_by_instructor_id(IN instructor_id INT)
-BEGIN
-  -- Check if instructor exists: I checked on the FE
-  -- Retrieve course details
+CREATE PROCEDURE update_sale_price_course_highlight(IN inp_course_id MEDIUMINT) 
+BEGIN 
+  DECLARE day_start_promotion DATE;
+  DECLARE day_end_promotion DATE;
+  DECLARE tier_difference_value TINYINT;
+  DECLARE tier_id_in_course TINYINT; 
+  DECLARE calculated_price MEDIUMINT;
+
   DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
   BEGIN 
     ROLLBACK;
-    SELECT 'Error: An error occurred while retrieving the courses';
+    SELECT 'Error: An error occurred while updating the sale price';
   END;
 
   START TRANSACTION;
-  SELECT c.id, c.title, sc.name AS subcategory_name, ch.students_enrolled, 
-         ch.average_rating, ch.sale_price
-  FROM Course c
-  JOIN SubCategory sc ON c.subcategory_id = sc.id
-  JOIN CourseHighlight ch ON c.id = ch.id
-  JOIN CourseInstructor ci ON c.id = ci.course_id AND ci.instructor_id = instructor_id;
-  COMMIT;
-END //              
 
-DELIMITER ;
+  SELECT day_start, day_end, tier_difference
+  INTO day_start_promotion, day_end_promotion, tier_difference_value
+  FROM PromotionalProgram
+  WHERE DATE(NOW()) BETWEEN day_start AND day_end
+  LIMIT 1;
 
--- Truy vấn: (3) Cho biết thông tin danh sách khoá học dựa vào từ khoá tìm kiếm theo tên khoá học.
-DELIMITER //
+  SELECT tier_id INTO tier_id_in_course
+   FROM Course
+   WHERE id = inp_course_id;
 
-CREATE PROCEDURE search_courses_by_keyword(IN keyword VARCHAR(60))
-BEGIN
-  DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
-  BEGIN 
-    ROLLBACK;
-    SELECT 'Error: An error occurred while retrieving the courses';
-  END;
+IF day_start_promotion IS NOT NULL AND day_end_promotion IS NOT NULL THEN
+     SET calculated_price = (
+       CASE 
+         WHEN tier_id_in_course <= tier_difference_value THEN 
+           (SELECT price FROM Tier WHERE id = 1)
+         ELSE 
+           (SELECT price FROM Tier WHERE id = LEAST(tier_id_in_course - tier_difference_value, (SELECT MAX(id) FROM Tier)))
+       END
+     );
+     
+     UPDATE CourseHighlight
+     SET sale_price = calculated_price
+     WHERE id = inp_course_id;
+END IF;
 
-  START TRANSACTION;
-  SELECT c.id, c.title, sc.name AS subcategory_name, ch.students_enrolled, 
-         ch.average_rating, ch.sale_price, u.full_name AS instructor_name
-  FROM Course c
-  JOIN SubCategory sc ON c.subcategory_id = sc.id
-  JOIN CourseHighlight ch ON c.id = ch.id
-  JOIN CourseInstructor ci on ci.course_id = c.id
-  JOIN User u on u.id = ci.instructor_id 
-  WHERE c.title LIKE CONCAT('%', keyword COLLATE utf8mb4_unicode_ci, '%')
-    AND (u.role = 'instructor' or u.role = 'vipinstrutor')
-    AND c.status = 'approved';
   COMMIT;
 END //
 
 DELIMITER ;
 
+-- Truy vấn 1: Xem các khóa học đã tạo.
+ 
+drop PROCEDURE get_courses_by_instructor_id;
+DELIMITER //
+
+CREATE PROCEDURE get_courses_by_instructor_id(IN inp_instructor_id INT)
+BEGIN
+  DECLARE totalCourses INT;
+  DECLARE i INT DEFAULT 1;
+  DECLARE course_id_to_update MEDIUMINT;
+  DECLARE offset INT;
+
+  DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
+  BEGIN
+    ROLLBACK;
+    SELECT 'Error: An error occurred while retrieving the courses';
+  END;
+
+  CREATE TEMPORARY TABLE tempCourseInstructor (
+    course_id MEDIUMINT PRIMARY KEY
+  );
+
+  INSERT INTO tempCourseInstructor (course_id)
+  SELECT course_id
+  FROM CourseInstructor 
+  WHERE instructor_id = inp_instructor_id;
+
+  SELECT COUNT(*) INTO totalCourses FROM tempCourseInstructor;
+
+  WHILE i <= totalCourses DO
+    SET offset = i - 1;
+
+    SELECT course_id INTO course_id_to_update
+    FROM tempCourseInstructor
+    LIMIT offset, 1;
+
+    CALL update_sale_price_course_highlight(course_id_to_update);
+
+    SET i = i + 1;
+  END WHILE;
+
+  DROP TEMPORARY TABLE tempCourseInstructor;
+
+  SELECT c.id, c.title, sc.name AS subcategory_name, ch.students_enrolled,
+         ch.average_rating, ch.sale_price, u.full_name
+  FROM Course c
+  JOIN SubCategory sc ON c.subcategory_id = sc.id
+  JOIN CourseHighlight ch ON c.id = ch.id
+  JOIN CourseInstructor ci ON c.id = ci.course_id
+  JOIN User u ON u.id = ci.instructor_id
+  WHERE ci.instructor_id = inp_instructor_id;
+
+END //
+
+DELIMITER ;
+
+select * from Instructor;
+CALL get_courses_by_instructor_id(2);
+
+
+-- Truy vấn: (3) Cho biết thông tin danh sách khoá học dựa vào từ khoá tìm kiếm theo tên khoá học.
+drop procedure search_courses_by_keyword;
+DELIMITER //
+CREATE PROCEDURE search_courses_by_keyword(IN keyword VARCHAR(60))
+BEGIN
+  DECLARE totalCourses INT;
+  DECLARE i INT DEFAULT 1;
+  DECLARE course_id_to_update MEDIUMINT;
+  DECLARE offset INT;
+
+  DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
+  BEGIN
+    ROLLBACK;
+    SELECT 'Error: An error occurred while retrieving the courses';
+  END;
+
+  CREATE TEMPORARY TABLE tempCourseInstructor (
+    course_id MEDIUMINT PRIMARY KEY
+  );
+
+  INSERT INTO tempCourseInstructor (course_id)
+  SELECT id
+  FROM Course 
+  WHERE title LIKE CONCAT('%', keyword, '%');
+
+  SELECT COUNT(*) INTO totalCourses FROM tempCourseInstructor;
+
+  WHILE i <= totalCourses DO
+    SET offset = i - 1;
+
+    SELECT course_id INTO course_id_to_update
+    FROM tempCourseInstructor
+    LIMIT offset, 1;
+
+    CALL update_sale_price_course_highlight(course_id_to_update);
+
+    SET i = i + 1;
+  END WHILE;
+
+  DROP TEMPORARY TABLE tempCourseInstructor;
+
+  SELECT c.id, c.title, sc.name AS subcategory_name, ch.students_enrolled, 
+         ch.average_rating, ch.sale_price, u.full_name AS instructor_name
+  FROM Course c
+  JOIN SubCategory sc ON c.subcategory_id = sc.id
+  JOIN CourseHighlight ch ON c.id = ch.id
+  JOIN CourseInstructor ci ON ci.course_id = c.id
+  JOIN User u ON u.id = ci.instructor_id
+  WHERE c.title LIKE CONCAT('%', keyword COLLATE utf8mb4_unicode_ci, '%')
+    AND (u.role = 'instructor' OR u.role = 'vipinstructor')
+    AND c.status = 'approved';
+
+END //
+
+DELIMITER ;
+
 -- Truy vấn: (4) Cho biết danh sách các khoá học mà học viên có thể xem được.
+drop procedure get_courses_for_student;
 DELIMITER //
 
 CREATE PROCEDURE get_courses_for_student()
 BEGIN
+  DECLARE totalCourses INT;
+  DECLARE i INT DEFAULT 1;
+  DECLARE course_id_to_update MEDIUMINT;
+  DECLARE offset INT;
+
   DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
   BEGIN 
     ROLLBACK;
     SELECT 'Error: An error occurred while retrieving the courses';
   END;
 
-  START TRANSACTION;
+  CREATE TEMPORARY TABLE tempCourses (
+    course_id MEDIUMINT PRIMARY KEY
+  ); 
+
+  INSERT INTO tempCourses (course_id)
+  SELECT id FROM course WHERE status = 'approved';
+
+  SELECT COUNT(*) INTO totalCourses FROM tempCourses;
+
+  WHILE i <= totalCourses DO
+    SET offset = i - 1;
+
+    SELECT course_id INTO course_id_to_update
+    FROM tempCourseInstructor
+    LIMIT offset, 1;
+
+    CALL update_sale_price_course_highlight(course_id_to_update);
+
+    SET i = i + 1;
+  END WHILE;
+
+  DROP TEMPORARY TABLE tempCourses;
+
   SELECT c.id, c.title, sc.name AS subcategory_name, ch.students_enrolled, 
          ch.average_rating, ch.sale_price, u.full_name AS instructor_name
   FROM Course c
@@ -78,6 +221,8 @@ BEGIN
 END //
 
 DELIMITER ;
+
+CALL get_courses_for_student();
 
 -- Truy vấn: (5) Thêm khóa học vào giỏ hàng.
 DELIMITER //
@@ -101,7 +246,6 @@ BEGIN
     ELSE
       INSERT INTO ShoppingCart(learner_id, course_id)
       VALUES (p_learner_id, p_course_id);
-      
       COMMIT;
       SELECT * FROM ShoppingCart WHERE learner_id = p_learner_id AND course_id = p_course_id;
     END IF;
@@ -110,18 +254,44 @@ END //
 
 DELIMITER ;
 
+CALL add_course_to_cart(5, 1);
 -- Truy vấn: (6) Cho biết các danh sách khoá học có trong giỏ hàng của học viên.
+drop PROCEDURE get_courses_in_cart;
 DELIMITER //
 
 CREATE PROCEDURE get_courses_in_cart(IN learner_id MEDIUMINT)
 BEGIN
+  DECLARE totalCourses INT;
+  DECLARE i INT DEFAULT 1;
+  DECLARE course_id_to_update MEDIUMINT;
+  DECLARE offset INT;
+
   DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
   BEGIN 
     ROLLBACK;
     SELECT 'Error: An error occurred while retrieving the courses in the cart' AS error_message;
   END;
 
-  START TRANSACTION;
+  CREATE TEMPORARY TABLE tempCoursesInShoppingCart (
+    course_id MEDIUMINT PRIMARY KEY
+  ); 
+
+  INSERT INTO tempCoursesInShoppingCart (course_id)
+  SELECT sc.course_id FROM ShoppingCart sc WHERE sc.learner_id = learner_id;
+
+  SELECT COUNT(*) INTO totalCourses FROM tempCoursesInShoppingCart;
+
+  WHILE i <= totalCourses DO
+    SET offset = i - 1;
+    SELECT course_id INTO course_id_to_update
+    FROM tempCourseInstructor
+    LIMIT offset, 1;
+    CALL update_sale_price_course_highlight(course_id_to_update);
+    SET i = i + 1;
+  END WHILE;
+
+  DROP TEMPORARY TABLE tempCoursesInShoppingCart;
+
   SELECT c.id, c.title, scat.name AS subcategory_name, u.full_name AS instructor_name, 
           ch.students_enrolled, ch.average_rating, ch.sale_price AS sale_price, t.price AS original_price
   FROM ShoppingCart sc 
@@ -131,12 +301,11 @@ BEGIN
   JOIN User u ON ci.instructor_id = u.id
   JOIN CourseHighlight ch ON c.id = ch.id
   JOIN Tier t on c.tier_id = t.id
-  WHERE sc.learner_id = 5
+  WHERE sc.learner_id = learner_id
     AND u.role = 'instructor' OR u.role = 'vipinstrutor';
-  COMMIT;
 END //
 
-DELIMITER;
+DELIMITER ;
 
 -- Truy vấn: (7) Thanh toán khoá học.
 DELIMITER //
@@ -180,6 +349,8 @@ BEGIN
   END;
 
   START TRANSACTION;
+
+  CALL update_sale_price_course_highlight(course_id);
   SET @final_price = (SELECT sale_price FROM CourseHighlight WHERE id = course_id);
   INSERT INTO EnrollementCourse(learner_id, course_id, payment_id, final_course_price)
   VALUES (learner_id, course_id, payment_id, @final_price);
@@ -191,6 +362,7 @@ BEGIN
   SET total_price = total_price + @final_price, 
       total_course = total_course + 1
  	WHERE id = payment_id;  
+
   UPDATE CourseHighlight 
   SET students_enrolled = students_enrolled + 1 
   WHERE id = course_id;
@@ -346,6 +518,7 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM CourseHighlight WHERE id = input_course_id) THEN
     CALL create_course_highlight(input_course_id);
   
+  -- 9. Tổng số học phần trong một khoá học cho biết số học phần thuộc về khoá học đó. 
   UPDATE CourseHighlight 
   SET no_sections = no_sections + 1
   WHERE id = input_course_id;
@@ -813,7 +986,8 @@ END //
 DELIMITER ; 
 
 CALL view_courses_pending_approval();
--- Truy vấn: (12) Xem chi tiết khóa học đang chờ duyệt để đăng trên hệ thống..
+
+-- Truy vấn: (12) Xem chi tiết khóa học đang chờ duyệt để đăng trên hệ thống.
 DELIMITER //
 
 CREATE PROCEDURE view_course_details_pending_approval(IN input_course_id MEDIUMINT) 
@@ -848,7 +1022,6 @@ BEGIN
     i.description AS instructor_description,
     i.instructor_type AS instructor_type,
     ch.downloadable_documents AS downloadable_documents,
-    ch.sale_price AS sale_price,
     ch.no_sections AS number_of_sections,
     ch.duration AS course_duration,
     u.full_name
@@ -928,3 +1101,4 @@ END //
 DELIMITER ;
 
 CALL approve_course(1, 'approved');
+
