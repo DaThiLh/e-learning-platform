@@ -1,0 +1,31 @@
+@import "@styles/mixins.scss";
+
+.basicInformationFormContainer {
+	:global {
+		width: 50vw;
+		padding: 1rem;
+
+		.form-row{
+			display: flex;
+			gap: 1rem;
+			width: 100%;
+			justify-content: space-between;
+		}
+
+		.border-color-orange, .ant-select-selector{
+			&:hover, :focus {
+				border-color: theme("colors.orange") !important;
+			}
+		}
+
+		.error-message {
+			color: red;
+		}
+	}
+
+	@media(max-width: 1024px) {
+		:global {
+			width: 60vw;
+		}
+	}
+}

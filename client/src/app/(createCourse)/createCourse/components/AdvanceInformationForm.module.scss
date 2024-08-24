@@ -1,0 +1,74 @@
+@import "@styles/mixins.scss";
+
+.advanceInformationFormContainer {
+	:global {
+		width: 50vw;
+		padding: 1rem;
+
+		.form-row,
+		.button-form-row {
+			display: flex;
+			width: 100%;
+			justify-content: space-between;
+		}
+
+		.ant-btn.css-dev-only-do-not-override-m4timi.ant-btn-default.ant-btn-dangerous {
+			width: 15%;
+			border-color: theme("colors.orange");
+			color: theme("colors.orange");
+			@media(max-width: 1024px) {
+				width: 10%;
+			}
+		}
+
+		.ant-btn.css-dev-only-do-not-override-m4timi.ant-btn-primary.ant-btn-dangerous {
+			width: 15%;
+			background-color: theme("colors.orange");
+		}
+
+		.text-btn-add-new {
+			@media(max-width: 1024px) {
+				display: none;
+			}
+		}
+
+		.ant-row.ant-form-item-row.css-dev-only-do-not-override-m4timi {
+			width: 100%;
+		}
+
+		.ant-input-affix-wrapper.css-dev-only-do-not-override-m4timi.ant-input-outlined{
+			width: 	100%;
+		}
+
+		.buttonDeleteItem {
+			border-style: none;
+			box-shadow: none;
+			color: theme("colors.orange");
+
+			&:hover, :focus {
+				opacity: 0.8;
+				color: theme("colors.orange") !important;
+			}
+
+			&:disabled {
+				background-color: white;
+			}
+		}
+
+		.border-color-orange{
+			&:hover, :focus {
+				border-color: theme("colors.orange") !important;
+			}
+		}
+
+		.error-message {
+			color: red;
+		}
+	}
+
+	@media(max-width: 1024px) {
+		:global {
+			width: 60vw;
+		}
+	}
+}

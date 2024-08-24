@@ -1,0 +1,54 @@
+@import "@styles/mixins.scss";
+
+.NavigationButtonContainer {
+  :global {
+    .button-form-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+
+      .ant-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .ant-btn.css-dev-only-do-not-override-m4timi.ant-btn-default.ant-btn-dangerous {
+        width: 20%;
+        border-color: theme("colors.orange");
+        color: theme("colors.orange");
+
+        &:hover {
+          border-color: theme("colors.orange");
+          opacity: 0.8;
+        }
+      }
+
+      .ant-btn.css-dev-only-do-not-override-m4timi.ant-btn-primary.ant-btn-dangerous {
+        width: 20%;
+        background-color: theme("colors.orange");
+
+        &:hover {
+          background-color: theme("colors.orange");
+          opacity: 0.8;
+        }
+      }
+
+      .hidden-button {
+        visibility: hidden;
+      }
+    }
+  }
+}
+
+@media (max-width: 1024px) {
+  .NavigationButtonContainer :global {
+    .ant-form-item-control-input-content input {
+      width: 100%;
+    }
+
+    .button-form-row .button-icon-only .button-text {
+      display: none;
+    }
+  }
+}

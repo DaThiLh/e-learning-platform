@@ -1,0 +1,14 @@
+@import "@styles/mixins.scss";
+
+.publishCourseFormContainer {
+  :global {
+		width: 50vw;
+		padding: 1rem;
+  	
+		@media(max-width: 1024px) {
+			:global {
+				width: 60vw;
+			}
+		}
+	}
+}
