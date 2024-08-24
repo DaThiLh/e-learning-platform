@@ -24,7 +24,7 @@ export default function CourseComponent({ courses }: { courses: Course[] }) {
                 className="group relative cursor-pointer"
                 onClick={() => router.push(`/course/${course.id}`)}
               >
-                <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-52 lg:w-62">
+                <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden bg-gray-200 lg:aspect-none group-hover:opacity-75 h-52 w-62">
                   <img
                     alt={course.title}
                     src={`https://picsum.photos/312/${220 + course.id}`}
