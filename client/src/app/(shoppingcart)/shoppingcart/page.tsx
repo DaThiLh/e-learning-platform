@@ -10,7 +10,7 @@ const page = async({ params}: {params: {id: string}}) => {
 
   const { id }: {id: number} = { id: 60012 };
 
-  const res = await fetch(`http://localhost:8000/read-shopping-cart/${id}`, {
+  const res = await fetch(`http://localhost:5000/read-shopping-cart/${id}`, {
     method: "GET",
     headers: { "Content-Type": "application/json" },
   });
