@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import CheckOut from "./components/CheckOut";
+import CheckOut from "./CheckOut";
 
 export const metadata: Metadata = {
   title: "Home Page",

@@ -1,0 +1,73 @@
+@import "@styles/mixins.scss";
+
+.checkOutContainer {
+  :global {
+    .container {
+      width: 100%; 
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between; 
+      margin-bottom: 7px; 
+      font-size: 0.7rem; 
+      padding-bottom: 2px; 
+      padding-top: 2px; 
+
+      > div {
+        &:last-child {
+          font-weight: 600;
+        }
+      }
+
+      &:last-child {
+        border-top-width: 2px;
+        padding-top: 5px; 
+        padding-bottom: 0px;
+      }
+      &:first-child {
+        padding-top: 0px; 
+      }
+    }
+    // .ant-btn-primary {
+    //   border-radius: 0px;
+    //   background-color: #FF6636;
+    //   width: 100%;
+    //   height: fit-content;
+    //   font-size: 1.25rem; 
+    //   font-weight: 600;
+    //   padding-top: 10px;
+    //   padding-bottom: 10px;
+    // }
+    // #checkout:hover {
+    //   background-color: red; /* Change to a darker shade on hover */
+    //   // box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add a shadow effect */
+
+    // }
+    .ant-btn-primary {
+      @include btn-main;
+      margin-left: auto;
+      width: 100%;
+      border-radius: 0px;
+      font-size: 0.7rem;
+      padding: 5px;
+
+    }
+    #card1, #card2, #card3 {
+        @include btn-card-with-media;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+      }
+      
+      #card1.clicked, #card2.clicked, #card3.clicked {
+        background-color: theme("colors.orange");
+        color: white;
+      }
+    .instructors {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    }
+      
+      
+  }
+}

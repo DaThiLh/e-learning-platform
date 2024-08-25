@@ -13,8 +13,11 @@ import { Collapse, List } from 'antd';
 import { FileOutlined, PlayCircleOutlined } from '@ant-design/icons';
 
 const { Panel } = Collapse;
+interface CourseDetailProps {
+  course: CourseDetail; // Ensure this is the correct type
+}
 
-const ListCom = () => {
+const ListCom: React.FC<CourseDetailProps> = ({ course }) => {
   const [activeButton, setActiveButton] = useState<string>("b1");
   const handleButtonClick = (id: string) => {
     setActiveButton(id);
@@ -26,6 +29,14 @@ const ListCom = () => {
     { icon: <PlayCircleOutlined />, title: "Teaser of Webflow", time: "07:31", url: "https://images.pexels.com/photos/416160/pexels-photo-416160.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" },
     { icon: <FileOutlined />, title: "Practice Project", size: "5.3 MB", url: "https://images.pexels.com/photos/416160/pexels-photo-416160.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" }
   ];
+  const Data = [
+    { icon: <PlayCircleOutlined />, title: "What's is Webflow?", time: "07:31", },
+    { icon: <PlayCircleOutlined />, title: "Sign up in Webflow", time: "07:31",  },
+    { icon: <FileOutlined />, title: "Webflow Terms & Conditions", size: "5.3 MB",  },
+    { icon: <PlayCircleOutlined />, title: "Teaser of Webflow", time: "07:31",},
+    { icon: <FileOutlined />, title: "Practice Project", size: "5.3 MB", }
+  ];
+  
   const renderLectureItem = (item) => (
     <List.Item>
       <div className="flex justify-between items-center w-full text-xs">
@@ -39,7 +50,7 @@ const ListCom = () => {
               </div>
             </Link>
           ) : (
-            <div className="text-orange underline underline-offset-1">
+            <div>
               {item.title}
             </div>
           )}
@@ -115,32 +126,6 @@ const ListCom = () => {
       learn: "Get an understanding of how to create GUIs in the Jupyter Notebook system!",
     }
   ];
-  const courseRequire = [
-    {
-      id: 1,
-      learn: "You will learn how to design beautiful websites using Figma, an interface design tool used by designers at Uber, Airbnb, and Microsoft.",
-    },
-    {
-      id: 2,
-      learn: "You will learn secret tips of Freelance Web Designers and how they make great money freelancing online.",
-    },
-    {
-      id: 3,
-      learn: "Understand how to use both the Jupyter Notebook and create .py files.",
-    },
-    {
-      id: 4,
-      learn: "You will learn how to take your designs and build them into powerful websites using Webflow, a state-of-the-art site builder used by teams at Dell, NASA, and more.",
-    },
-    {
-      id: 5,
-      learn: "Learn to use Python professionally, learning both Python 2 and Python 3!",
-    },
-    {
-      id: 6,
-      learn: "Get an understanding of how to create GUIs in the Jupyter Notebook system!",
-    }
-  ];
   
   type RatingCounts = {
     [key: number]: number;
@@ -168,15 +153,6 @@ const ListCom = () => {
     5: 0
   });
 
-  useEffect(() => {
-    const counts: RatingCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-
-    reviews.forEach(review => {
-      counts[review.rating]++;
-    });
-
-    setRatingCounts(counts);
-  }, [reviews]);
 
   return (
     <div className={cn(s.ListComContainer, 'w-full flex flex-col')}>
@@ -258,13 +234,22 @@ const ListCom = () => {
                   key={item.key}
                   extra={ <span className="text-xs lg:block sm:hidden ">{item.lectures}</span>}
                 >
-                  {item.key === "1" && (
-                    <List
-                      dataSource={gettingStartedData}
-                      renderItem={renderLectureItem}
-                      bordered
-                    />
-                  )}
+                  {
+                    item.key === "1" ? (
+                      <List
+                        dataSource={gettingStartedData}
+                        renderItem={renderLectureItem}
+                        bordered
+                      />
+                    ) : (
+                      <List
+                        dataSource={Data}
+                        renderItem={renderLectureItem}
+                        bordered
+                      />
+                    )
+                  }
+
                    
                 </Panel>
               ))}
