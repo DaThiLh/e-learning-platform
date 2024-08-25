@@ -30,7 +30,7 @@ BEGIN
    FROM Course
    WHERE id = inp_course_id;
 
-IF day_start_promotion IS NOT NULL AND day_end_promotion IS NOT NULL THEN
+  IF day_start_promotion IS NOT NULL AND day_end_promotion IS NOT NULL THEN
      SET calculated_price = (
        CASE 
          WHEN tier_id_in_course <= tier_difference_value THEN 
@@ -43,7 +43,7 @@ IF day_start_promotion IS NOT NULL AND day_end_promotion IS NOT NULL THEN
      UPDATE CourseHighlight
      SET sale_price = calculated_price
      WHERE id = inp_course_id;
-END IF;
+  END IF;
 
   COMMIT;
 END //
@@ -101,7 +101,6 @@ BEGIN
   JOIN CourseInstructor ci ON c.id = ci.course_id
   JOIN User u ON u.id = ci.instructor_id
   WHERE ci.instructor_id = inp_instructor_id;
-
 END //
 
 DELIMITER ;
@@ -884,59 +883,59 @@ BEGIN
     c.tier_id AS course_tier_id,
     c.status AS course_status,
     c.subcategory_id AS course_subcategory_id,
-    co.course_objective AS course_objective,
+    GROUP_CONCAT(DISTINCT co.course_objective ORDER BY co.course_objective SEPARATOR ', ') AS course_objectives,
     sc.name AS subcategory_name,
     t.price AS tier_price,
-    i.instructor_id AS instructor_id,
-    i.date_of_birth AS instructor_date_of_birth,
-    i.address AS instructor_address,
-    i.phone AS instructor_phone,
-    i.academic_degree AS instructor_academic_degree,
-    i.working_unit AS instructor_working_unit,
-    i.academic_title AS instructor_academic_title,
-    i.description AS instructor_description,
-    i.instructor_type AS instructor_type,
-    cih.create_at AS instructor_history_create_at,
-    cih.course_profit_percent AS course_profit_percent,
-    cp.section_id AS course_section_id,
-    cp.item_id AS course_item_id,
-    cp.learner_id AS course_learner_id,
-    ch.downloadable_documents AS course_downloadable_documents,
-    ch.students_enrolled AS course_students_enrolled,
-    ch.average_rating AS course_average_rating,
-    ch.sale_price AS course_sale_price,
-    ch.no_sections AS course_no_sections,
-    ch.duration AS course_duration,
-    pp.name AS promotional_program_name,
-    pp.content AS promotional_program_content,
-    pp.day_start AS promotional_program_day_start,
-    pp.day_end AS promotional_program_day_end,
-    pp.repeating_type AS promotional_program_repeating_type,
-    pp.tier_difference AS promotional_program_tier_difference
-  FROM
-      Course c
-  LEFT JOIN
-      CourseObjective co ON c.id = co.course_id
-  LEFT JOIN
-      SubCategory sc ON c.subcategory_id = sc.id
-  LEFT JOIN
-      Tier t ON c.tier_id = t.id
-  LEFT JOIN
-      CourseInstructor ci ON c.id = ci.course_id
-  LEFT JOIN
-      Instructor i ON ci.instructor_id = i.instructor_id
-  LEFT JOIN
-      CourseInstructorHistory cih ON c.id = cih.course_id AND ci.instructor_id = cih.instructor_id
-  LEFT JOIN
-      CourseProgress cp ON c.id = cp.course_id
-  LEFT JOIN
-      CourseHighlight ch ON c.id = ch.id
-  LEFT JOIN
-      PromotionalProgram pp ON c.id = pp.id
-  WHERE
-      c.id = input_course_id;
-
-END
+    GROUP_CONCAT(DISTINCT i.instructor_id ORDER BY i.instructor_id SEPARATOR ', ') AS instructor_ids,
+    GROUP_CONCAT(DISTINCT i.date_of_birth ORDER BY i.instructor_id SEPARATOR ', ') AS instructor_dates_of_birth,
+    GROUP_CONCAT(DISTINCT i.address ORDER BY i.instructor_id SEPARATOR ', ') AS instructor_addresses,
+    GROUP_CONCAT(DISTINCT i.phone ORDER BY i.instructor_id SEPARATOR ', ') AS instructor_phones,
+    GROUP_CONCAT(DISTINCT i.academic_degree ORDER BY i.instructor_id SEPARATOR ', ') AS instructor_academic_degrees,
+    GROUP_CONCAT(DISTINCT i.working_unit ORDER BY i.instructor_id SEPARATOR ', ') AS instructor_working_units,
+    GROUP_CONCAT(DISTINCT i.academic_title ORDER BY i.instructor_id SEPARATOR ', ') AS instructor_academic_titles,
+    GROUP_CONCAT(DISTINCT i.description ORDER BY i.instructor_id SEPARATOR ', ') AS instructor_descriptions,
+    GROUP_CONCAT(DISTINCT i.instructor_type ORDER BY i.instructor_id SEPARATOR ', ') AS instructor_types,
+    GROUP_CONCAT(DISTINCT cp.section_id ORDER BY cp.section_id SEPARATOR ', ') AS course_section_ids,
+    GROUP_CONCAT(DISTINCT cp.item_id ORDER BY cp.item_id SEPARATOR ', ') AS course_item_ids,
+    GROUP_CONCAT(DISTINCT cp.learner_id ORDER BY cp.learner_id SEPARATOR ', ') AS course_learner_ids,
+    GROUP_CONCAT(DISTINCT ch.downloadable_documents ORDER BY ch.downloadable_documents SEPARATOR ', ') AS course_downloadable_documents,
+    GROUP_CONCAT(DISTINCT ch.students_enrolled ORDER BY ch.students_enrolled SEPARATOR ', ') AS course_students_enrolled,
+    GROUP_CONCAT(DISTINCT ch.average_rating ORDER BY ch.average_rating SEPARATOR ', ') AS course_average_rating,
+    GROUP_CONCAT(DISTINCT ch.sale_price ORDER BY ch.sale_price SEPARATOR ', ') AS course_sale_price,
+    GROUP_CONCAT(DISTINCT ch.no_sections ORDER BY ch.no_sections SEPARATOR ', ') AS course_no_sections,
+    GROUP_CONCAT(DISTINCT ch.duration ORDER BY ch.duration SEPARATOR ', ') AS course_duration,
+    GROUP_CONCAT(DISTINCT pp.name ORDER BY pp.name SEPARATOR ', ') AS promotional_program_names,
+    GROUP_CONCAT(DISTINCT pp.content ORDER BY pp.content SEPARATOR ', ') AS promotional_program_contents,
+    GROUP_CONCAT(DISTINCT pp.day_start ORDER BY pp.day_start SEPARATOR ', ') AS promotional_program_day_starts,
+    GROUP_CONCAT(DISTINCT pp.day_end ORDER BY pp.day_end SEPARATOR ', ') AS promotional_program_day_ends,
+    GROUP_CONCAT(DISTINCT pp.tier_difference ORDER BY pp.tier_difference SEPARATOR ', ') AS promotional_program_tier_differences
+    FROM
+        Course c
+    LEFT JOIN
+        CourseObjective co ON c.id = co.course_id
+    LEFT JOIN
+        SubCategory sc ON c.subcategory_id = sc.id
+    LEFT JOIN
+        Tier t ON c.tier_id = t.id
+    LEFT JOIN
+        CourseInstructor ci ON c.id = ci.course_id
+    LEFT JOIN
+        Instructor i ON ci.instructor_id = i.instructor_id
+    LEFT JOIN
+        CourseProgress cp ON c.id = cp.course_id
+    LEFT JOIN
+        CourseHighlight ch ON c.id = ch.id
+    LEFT JOIN
+        PromotionalProgram pp ON c.id = pp.id
+    WHERE
+        c.id = input_course_id
+    GROUP BY
+        c.id,
+        sc.name,
+        t.price
+    ORDER BY
+        c.id;
+END //
 
 DELIMITER ;
 
@@ -1102,3 +1101,142 @@ DELIMITER ;
 
 CALL approve_course(1, 'approved');
 
+-- -------------------------------------------------------------
+-- Truy vấn: (3)' PAGINATION Cho biết thông tin danh sách khoá học dựa vào từ khoá tìm kiếm theo tên khoá học.
+drop procedure if exists search_courses_by_keyword_pagination;
+DELIMITER //
+CREATE PROCEDURE search_courses_by_keyword_pagination(
+  IN keyword VARCHAR(60),
+  IN page_number INT,
+  IN page_size INT
+)
+BEGIN
+  DECLARE totalCourses INT;
+  DECLARE i INT DEFAULT 1;
+  DECLARE course_id_to_update MEDIUMINT;
+  DECLARE offset INT;
+  DECLARE offsetPage INT;
+
+  DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
+  BEGIN
+    ROLLBACK;
+    SELECT 'Error: An error occurred while retrieving the courses';
+  END;
+
+  SET offsetPage = (page_number - 1) * page_size;
+
+  CREATE TEMPORARY TABLE tempCourseInstructor (
+    course_id MEDIUMINT PRIMARY KEY
+  );
+
+  INSERT INTO tempCourseInstructor (course_id)
+  SELECT id
+  FROM Course 
+  WHERE title LIKE CONCAT('%', keyword, '%');
+
+  SELECT COUNT(*) INTO totalCourses FROM tempCourseInstructor;
+
+  WHILE i <= totalCourses DO
+    SET offset = i - 1;
+
+    SELECT course_id INTO course_id_to_update
+    FROM tempCourseInstructor
+    LIMIT offset, 1;
+
+    CALL update_sale_price_course_highlight(course_id_to_update);
+
+    SET i = i + 1;
+  END WHILE;
+
+  DROP TEMPORARY TABLE tempCourseInstructor;
+
+  SET offset = page_number * page_size;
+
+  SELECT c.id, c.title, 
+    GROUP_CONCAT(DISTINCT sc.name ORDER BY sc.name SEPARATOR ', ') AS subcategory_name,
+    ch.average_rating, ch.sale_price, 
+    GROUP_CONCAT(DISTINCT u.full_name ORDER BY u.full_name SEPARATOR ', ') AS instructor_name 
+  FROM Course c
+  JOIN SubCategory sc ON c.subcategory_id = sc.id
+  JOIN CourseHighlight ch ON c.id = ch.id
+  JOIN CourseInstructor ci ON ci.course_id = c.id
+  JOIN User u ON u.id = ci.instructor_id
+  WHERE c.title LIKE CONCAT('%', keyword COLLATE utf8mb4_unicode_ci, '%')
+    AND u.role = 'instructor'
+    AND c.status = 'approved'
+  GROUP BY c.id
+  LIMIT page_size OFFSET offsetPage; 
+
+END //
+
+DELIMITER ;
+
+CALL search_courses_by_keyword_pagination('Title', 1, 20);
+
+-- Truy vấn: (4)' PHAN TRANG Cho biết danh sách các khoá học mà học viên có thể xem được.
+drop procedure if exists get_courses_for_student_pagination;
+DELIMITER //
+
+CREATE PROCEDURE get_courses_for_student_pagination(
+  IN page_number INT,
+  IN page_size INT
+)
+BEGIN
+  DECLARE totalCourses INT;
+  DECLARE i INT DEFAULT 1;
+  DECLARE course_id_to_update MEDIUMINT;
+  DECLARE offset INT;
+  DECLARE offsetPage INT;
+
+  DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
+  BEGIN 
+    ROLLBACK;
+    SELECT 'Error: An error occurred while retrieving the courses';
+  END;
+
+  SET offsetPage = (page_number - 1) * page_size;
+
+  CREATE TEMPORARY TABLE tempCourses (
+    course_id MEDIUMINT PRIMARY KEY
+  ); 
+
+  INSERT INTO tempCourses (course_id)
+  SELECT id FROM course WHERE status = 'approved';
+
+  SELECT COUNT(*) INTO totalCourses FROM tempCourses;
+
+  WHILE i <= totalCourses DO
+    SET offset = i - 1;
+
+    SELECT course_id INTO course_id_to_update
+    FROM tempCourseInstructor
+    LIMIT offset, 1;
+
+    CALL update_sale_price_course_highlight(course_id_to_update);
+
+    SET i = i + 1;
+  END WHILE;
+
+  DROP TEMPORARY TABLE tempCourses;
+
+  SELECT c.id, c.title, 
+      GROUP_CONCAT(DISTINCT sc.name ORDER BY sc.name SEPARATOR ', ') AS subcategory_name,
+      ch.students_enrolled, 
+      ch.average_rating, 
+      GROUP_CONCAT(DISTINCT u.full_name ORDER BY u.full_name SEPARATOR ', ') AS instructor_name 
+  FROM Course c
+  JOIN SubCategory sc ON c.subcategory_id = sc.id
+  JOIN CourseHighlight ch ON c.id = ch.id
+  JOIN CourseInstructor ci on ci.course_id = c.id
+  JOIN User u on u.id = ci.instructor_id 
+  WHERE u.role = 'instructor'
+    AND c.status = 'approved'
+  GROUP BY c.id 
+  LIMIT page_size OFFSET offsetPage; 
+
+  COMMIT;
+END //
+
+DELIMITER ;
+
+CALL get_courses_for_student_pagination(1, 20);
