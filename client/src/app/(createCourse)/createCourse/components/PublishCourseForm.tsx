@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import HeaderForm from "./HeaderForm";
 import styles from "./PublishCourseForm.module.scss";
-import { Typography, Form, Select, Button, Tooltip } from "antd";
+import { Typography, Form, Select, Button, Tooltip, Modal } from "antd";
 import { CloseOutlined } from "@ant-design/icons";
 import NavigationButton from "./NavigationButton";
 
@@ -60,6 +60,7 @@ const PublishCourseForm = ({moveToPreviousForm, handleSubmitForm}: {
 }) => {
 	const [publishCourse, setPublishCourse] = useState<PublishCourseProps>(defaultPublishCourse);
 	const [availableInstructors, setAvailableInstructors] = useState(initialInstructorOptions);
+	const [showablePopupSubmit, setShowablePopupSubmit] = useState(false);
 
 	const addInstructor = (instructorName: string) => {
 		const selectedInstructor = availableInstructors.find(
@@ -137,11 +138,24 @@ const PublishCourseForm = ({moveToPreviousForm, handleSubmitForm}: {
 				removeInstructor={removeInstructor}
 			/>
 
+			<Modal title="Submit Course"
+				open={showablePopupSubmit} 
+				onOk={() => setShowablePopupSubmit(true)} 
+				onCancel={() => setShowablePopupSubmit(true)}
+				okText="Yes"
+			>
+				<p>Are you sure you want to submit this course?</p>
+				
+      </Modal>
+
 			<NavigationButton
 				leftButton="Previous"
-				rightButton="Submit For Review"
+				rightButton="Submit"
 				actionLeftButton={() => moveToPreviousForm()}
-				actionRightButton={() => handleSubmitForm()}
+				actionRightButton={() => {
+					handleSubmitForm(); 
+					setShowablePopupSubmit(true);
+				}}
 			/>
 		</div>
 	);

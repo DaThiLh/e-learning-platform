@@ -9,6 +9,7 @@ import NavigationButton from "./NavigationButton";
 import type { TableProps } from 'antd';
 import languages from './languages.json';
 import TextArea from "antd/es/input/TextArea";
+import { send } from "process";
 const { Title } = Typography;
 
 type CaptionType = {
@@ -90,6 +91,7 @@ interface ItemCardProps {
 	indexItem: number;
 	onDelete: () => void;
 	isLastItem: boolean;
+	updateItem(indexItem: number): void;
 }
 
 interface SectionTypeProps {
@@ -97,6 +99,7 @@ interface SectionTypeProps {
 	index: number;
 	onDelete: () => void;
 	isLastSection: boolean;
+	updatedSection(index: number): void;
 }
 
 interface CurriculumFormProps {
@@ -228,7 +231,6 @@ const CurriculumForm = ({
 
 		setSections([...sectionsInForm, newSection]);
 
-		// handle save to local storage
 		const CurriculumFrom = localStorage.getItem("curriculumInformation");
 		const curriculum = CurriculumFrom ? JSON.parse(CurriculumFrom) : defaultCurriculum;
 		curriculum.sections.push(newSection);
@@ -237,12 +239,11 @@ const CurriculumForm = ({
 	};
 
 	const handleDeleteSection = (index: number) => {
-		if (sectionsInForm.length < 2) return;
-
+		if (sectionsInForm.length < 2) return;	
+		
 		const newSections = sectionsInForm.filter((_, i) => i !== index);
 		setSections(newSections);
-
-		// handle save to local storage
+		
 		const CurriculumFrom = localStorage.getItem("curriculumInformation");
 		const curriculum = CurriculumFrom ? JSON.parse(CurriculumFrom) : defaultCurriculum;
 		curriculum.sections = newSections;
@@ -266,6 +267,20 @@ const CurriculumForm = ({
 		setCurriculumInformation(curriculum);
 	};
 
+	const handleUpdateSectionByIndex = (indexSection: number) => {
+		const CurriculumnInformation = localStorage.getItem("curriculumInformation");
+		const curriculum = CurriculumnInformation ? JSON.parse(CurriculumnInformation) : defaultCurriculum;
+		const updatedSection = curriculum.sections[indexSection];
+
+		setSections(prevSections => 
+			prevSections.map((section, index) => 
+					index === indexSection ? updatedSection : section
+			)
+		);
+
+		setCurriculumInformation(curriculum);
+	}
+
 	return (
 		<div className={styles.curriculumFormContainer}>
 			<HeaderForm headerName="Curriculum Form" />
@@ -281,6 +296,7 @@ const CurriculumForm = ({
 									index={index}
 									onDelete={() => handleDeleteSection(index)}
 									isLastSection={sectionsInForm.length === 1}
+									updatedSection={handleUpdateSectionByIndex}
 								/>
 								<br />
 							</>
@@ -301,7 +317,7 @@ const CurriculumForm = ({
 	);
 };
 
-const SectionCard = ({ section, index, onDelete, isLastSection }: SectionTypeProps) => {
+const SectionCard = ({ section, index, onDelete, isLastSection, updatedSection }: SectionTypeProps) => {
 	const [itemsInSection, setItemsInSection] = useState<ItemCardType[]>(section.items);
 	const [title, setTitle] = useState<string>(section.title || '');
 
@@ -317,9 +333,12 @@ const SectionCard = ({ section, index, onDelete, isLastSection }: SectionTypePro
 		const curriculum = CurriculumFrom ? JSON.parse(CurriculumFrom) : defaultCurriculum;
 		curriculum.sections[index].items.push(newItem);
 		localStorage.setItem("curriculumInformation", JSON.stringify(curriculum));
+
+		updatedSection(index);
 	};
 
 	const handleDeleteItem = (indexItem: number) => {
+		console.log(itemsInSection);
 		if (itemsInSection.length < 2) return;
 
 		const newItems = itemsInSection.filter((_, i) => i !== indexItem);
@@ -339,6 +358,8 @@ const SectionCard = ({ section, index, onDelete, isLastSection }: SectionTypePro
 				localStorage.removeItem(`selectedItemType-${index}-${i + 1}`);
 			}
 		}
+
+		updatedSection(index);
 	};
 
 	const handleSetTitle = (value: string) => {
@@ -348,7 +369,23 @@ const SectionCard = ({ section, index, onDelete, isLastSection }: SectionTypePro
 		const curriculum = CurriculumForm ? JSON.parse(CurriculumForm) : defaultCurriculum;
 		curriculum.sections[index].title = value;
 		localStorage.setItem("curriculumInformation", JSON.stringify(curriculum));
+
+		updatedSection(index);
 	};
+
+	const handleUpdateItemByIndex = (indexItem: number) => {
+		const CurriculumInformation = localStorage.getItem("curriculumInformation");
+		const curriculum = CurriculumInformation ? JSON.parse(CurriculumInformation) : defaultCurriculum;
+		const updatedItems = curriculum.sections[index].items[indexItem];
+
+		setItemsInSection(prevItems => 
+			prevItems.map((item, index) => 
+					index === indexItem ? updatedItems : item
+			)
+		);
+
+		updatedSection(index);
+	}
 
 	useEffect(() => { setTitle(section.title) }, [section.title]);
 	useEffect(() => { setItemsInSection(section.items) }, [section.items]);
@@ -380,6 +417,7 @@ const SectionCard = ({ section, index, onDelete, isLastSection }: SectionTypePro
 						indexItem={indexItem}
 						onDelete={() => handleDeleteItem(indexItem)}
 						isLastItem={itemsInSection.length === 1}
+						updateItem={handleUpdateItemByIndex}
 					/>
 				</div>
 			))}
@@ -391,7 +429,7 @@ const SectionCard = ({ section, index, onDelete, isLastSection }: SectionTypePro
 	);
 };
 
-const ItemCard = ({ item, indexSection, indexItem, onDelete, isLastItem }: ItemCardProps) => {
+const ItemCard = ({ item, indexSection, indexItem, onDelete, isLastItem, updateItem }: ItemCardProps) => {
 	const [selectedItemType, setSelectedItemType] = useState<string | null>(() => {
 		const storedItemType = localStorage.getItem(`selectedItemType-${indexSection}-${indexItem}`);
 		return storedItemType || null;
@@ -415,6 +453,8 @@ const ItemCard = ({ item, indexSection, indexItem, onDelete, isLastItem }: ItemC
 		const curriculumn = CurriculumForm ? JSON.parse(CurriculumForm) : defaultCurriculum;
 		curriculumn.sections[indexSection].items[indexItem].title = value;
 		localStorage.setItem("curriculumInformation", JSON.stringify(curriculumn));
+
+		updateItem(indexItem);
 	}
 
 	const handleSetDescription = (value: string) => {
@@ -423,6 +463,8 @@ const ItemCard = ({ item, indexSection, indexItem, onDelete, isLastItem }: ItemC
 		const curriculum = CurriculumForm ? JSON.parse(CurriculumForm) : defaultCurriculum;
 		curriculum.sections[indexSection].items[indexItem].description = value;
 		localStorage.setItem("curriculumInformation", JSON.stringify(curriculum));
+
+		updateItem(indexItem);
 	}
 
 	const handleSetItemType = (itemType: string) => {
@@ -434,6 +476,8 @@ const ItemCard = ({ item, indexSection, indexItem, onDelete, isLastItem }: ItemC
 		curriculum.sections[indexSection].items[indexItem].content =
 			itemType === "quiz" ? quizInfo : lectureInfo;
 		localStorage.setItem("curriculumInformation", JSON.stringify(curriculum));
+
+		updateItem(indexItem);
 	};
 
 	const setUrlVideoValue = (value: string) => {
@@ -442,6 +486,7 @@ const ItemCard = ({ item, indexSection, indexItem, onDelete, isLastItem }: ItemC
 			urlVideo: value
 		}));
 	};
+
 
 	const setDescriptionValue = (value: string) => {
 		// setLectureInfo(prevLectureInfo => ({
@@ -463,6 +508,30 @@ const ItemCard = ({ item, indexSection, indexItem, onDelete, isLastItem }: ItemC
 		// 	caption: value
 		// }));
 	}
+
+	const handleSelectedItemType = () => {
+		const CurriculumnForm = localStorage.getItem("curriculumInformation");
+		const curriculum = CurriculumnForm ? JSON.parse(CurriculumnForm) : defaultCurriculum;
+		const item = curriculum.sections[indexSection].items[indexItem];
+
+		if (item.content) {
+			if ('question' in item.content) {
+				setSelectedItemType("quiz");
+				setQuizInfo(item.content as QuizItemType);
+			} else {
+				setSelectedItemType("lecture");
+				setLectureInfo(item.content as LectureItemType);
+			}
+		}
+	};
+
+	useEffect(() => {setTitle(item.title)}, [item.title]);
+	useEffect(() => {setDescription(item.description)}, [item.description]);
+	useEffect(() => {
+		handleSelectedItemType();
+// eslint-disable-next-line react-hooks/exhaustive-deps
+}, [item.content]);
+
 
 	return (
 		<div className={styles.itemContainer}>
