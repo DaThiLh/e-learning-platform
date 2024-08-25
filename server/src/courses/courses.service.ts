@@ -38,7 +38,7 @@ export class CoursesService {
     const res: any[] = await this.prismaService
       .$queryRaw`CALL get_courses_for_student()`;
 
-      // console.log(res);
+    // console.log(res);
     const courses = JSON.parse(json(res));
 
     const columns = [
