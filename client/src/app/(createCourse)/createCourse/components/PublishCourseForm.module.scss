@@ -1,7 +1,7 @@
 @import "@styles/mixins.scss";
 
 .publishCourseFormContainer {
-  :global {
+  	:global {
 		width: 50vw;
 		padding: 1rem;
   	
@@ -9,6 +9,25 @@
 			:global {
 				width: 60vw;
 			}
+		}
+		#input_percentage{
+			width: 50px;
+			border-right: 0;
+			&:hover {
+				border-color:#d9d9d9;
+			}
+			&:focus {
+				box-shadow: none;
+				border-color:#d9d9d9;
+			}
+		}
+		.ant-input-group-wrapper-outlined .ant-input-group-addon{
+			background-color: white;
+			padding-left:1px;
+			border-left: 0;
+		}
+		.ant-select-selector .ant-select-selection-search-input{
+			--tw-ring-shadow: none;
 		}
 	}
 }
