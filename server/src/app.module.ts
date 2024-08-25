@@ -11,6 +11,7 @@ import { CoursedetailModule } from './coursedetail/coursedetail.module';
 import { LecturesModule } from './lectures/lectures.module';
 import { LecturesubtitlesModule } from './lecturesubtitles/lecturesubtitles.module';
 import { PaymentModule } from './payment/payment.module';
+import { ModulecoursesModule } from './modulecourses/modulecourses.module';
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import { PaymentModule } from './payment/payment.module';
     SectionsModule,
     ItemsModule,
     LecturesModule,
-    LecturesubtitlesModule,
+    LecturesubtitlesModule, ModulecoursesModule,
     PaymentModule,
   ],
   controllers: [],
