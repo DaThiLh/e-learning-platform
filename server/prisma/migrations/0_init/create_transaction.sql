@@ -30,7 +30,7 @@ BEGIN
    FROM Course
    WHERE id = inp_course_id;
 
-  IF day_start_promotion IS NOT NULL AND day_end_promotion IS NOT NULL THEN
+IF day_start_promotion IS NOT NULL AND day_end_promotion IS NOT NULL THEN
      SET calculated_price = (
        CASE 
          WHEN tier_id_in_course <= tier_difference_value THEN 
@@ -43,7 +43,7 @@ BEGIN
      UPDATE CourseHighlight
      SET sale_price = calculated_price
      WHERE id = inp_course_id;
-  END IF;
+END IF;
 
   COMMIT;
 END //
@@ -101,6 +101,7 @@ BEGIN
   JOIN CourseInstructor ci ON c.id = ci.course_id
   JOIN User u ON u.id = ci.instructor_id
   WHERE ci.instructor_id = inp_instructor_id;
+
 END //
 
 DELIMITER ;
@@ -178,16 +179,17 @@ BEGIN
 
   DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
   BEGIN 
-    ROLLBACK;
     SELECT 'Error: An error occurred while retrieving the courses';
   END;
+
+  DROP TEMPORARY TABLE IF EXISTS tempCourses;
 
   CREATE TEMPORARY TABLE tempCourses (
     course_id MEDIUMINT PRIMARY KEY
   ); 
 
   INSERT INTO tempCourses (course_id)
-  SELECT id FROM course WHERE status = 'approved';
+  SELECT id FROM Course WHERE status = 'approved';
 
   SELECT COUNT(*) INTO totalCourses FROM tempCourses;
 
@@ -195,7 +197,7 @@ BEGIN
     SET offset = i - 1;
 
     SELECT course_id INTO course_id_to_update
-    FROM tempCourseInstructor
+    FROM tempCourses
     LIMIT offset, 1;
 
     CALL update_sale_price_course_highlight(course_id_to_update);
@@ -210,16 +212,14 @@ BEGIN
   FROM Course c
   JOIN SubCategory sc ON c.subcategory_id = sc.id
   JOIN CourseHighlight ch ON c.id = ch.id
-  JOIN CourseInstructor ci on ci.course_id = c.id
-  JOIN User u on u.id = ci.instructor_id 
-  WHERE (u.role = 'instructor' or u.role = 'vipinstrutor')
+  JOIN CourseInstructor ci ON ci.course_id = c.id
+  JOIN User u ON u.id = ci.instructor_id 
+  WHERE u.role = 'instructor'
     AND c.status = 'approved';
-  COMMIT;
+
 END //
 
 DELIMITER ;
-
-CALL get_courses_for_student();
 
 -- Truy vấn: (5) Thêm khóa học vào giỏ hàng.
 DELIMITER //
@@ -1102,6 +1102,7 @@ DELIMITER ;
 CALL approve_course(1, 'approved');
 
 -- -------------------------------------------------------------
+-- -------------------------------------------------------------
 -- Truy vấn: (3)' PAGINATION Cho biết thông tin danh sách khoá học dựa vào từ khoá tìm kiếm theo tên khoá học.
 drop procedure if exists search_courses_by_keyword_pagination;
 DELIMITER //
@@ -1196,34 +1197,11 @@ BEGIN
 
   SET offsetPage = (page_number - 1) * page_size;
 
-  CREATE TEMPORARY TABLE tempCourses (
-    course_id MEDIUMINT PRIMARY KEY
-  ); 
-
-  INSERT INTO tempCourses (course_id)
-  SELECT id FROM course WHERE status = 'approved';
-
-  SELECT COUNT(*) INTO totalCourses FROM tempCourses;
-
-  WHILE i <= totalCourses DO
-    SET offset = i - 1;
-
-    SELECT course_id INTO course_id_to_update
-    FROM tempCourseInstructor
-    LIMIT offset, 1;
-
-    CALL update_sale_price_course_highlight(course_id_to_update);
-
-    SET i = i + 1;
-  END WHILE;
-
-  DROP TEMPORARY TABLE tempCourses;
-
   SELECT c.id, c.title, 
       GROUP_CONCAT(DISTINCT sc.name ORDER BY sc.name SEPARATOR ', ') AS subcategory_name,
       ch.students_enrolled, 
       ch.average_rating, 
-      GROUP_CONCAT(DISTINCT u.full_name ORDER BY u.full_name SEPARATOR ', ') AS instructor_name 
+      GROUP_CONCAT(DISTINCT u.full_name ORDER BY u.full_name SEPARATOR ', ') AS instructor_name
   FROM Course c
   JOIN SubCategory sc ON c.subcategory_id = sc.id
   JOIN CourseHighlight ch ON c.id = ch.id
@@ -1240,3 +1218,4 @@ END //
 DELIMITER ;
 
 CALL get_courses_for_student_pagination(1, 20);
+
