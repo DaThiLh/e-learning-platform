@@ -1,18 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import Decimal from 'decimal.js';
 import { CloseCircleOutlined } from '@ant-design/icons';
 
 // Define the props interface
 interface ItemProps {
-  star: number; 
+  star: number;
   courseTitle: string;
   instructors: string[];
   price: Decimal;
+  originalPrice: Decimal;
   onRemove: (courseTitle: string) => void; // Add the onRemove prop type
 }
 
-const Item: React.FC<ItemProps> = ({ star, courseTitle, instructors, price, onRemove }) => {
+const Item: React.FC<ItemProps> = ({ star, courseTitle, instructors, price, originalPrice, onRemove }) => {
   return (
     <div className="w-full flex flex-row border-b-2">
       <div className="grow flex items-center justify-between">
@@ -34,14 +35,21 @@ const Item: React.FC<ItemProps> = ({ star, courseTitle, instructors, price, onRe
           </div>
         </div>
       </div>
-      <div className="w-[60px] flex items-center justify-left font-semibold text-orange lg:mr-10 sm:mx-3 sm:text-base text-lg">
-        <p>{`$${price.toFixed(2)}`}</p>
-      </div>
-      <div 
-        className="w-[20px] flex items-center lg:mr-10 sm:mr-5 cursor-pointer"
-        onClick={() => onRemove(courseTitle)} // Call onRemove with courseTitle
-      >
-        <CloseCircleOutlined />
+      <div className="flex space-x-2 md:space-x-4  mr-2">
+        <div className="flex flex-row sm:justify-center">
+          <div className="mr-1 font-medium text-lg flex items-center w-[60px] flex items-center justify-left font-semibold text-orange lg:mr-10 sm:mx-3 sm:text-base text-lg">
+            <p>{`${price}`}</p>
+          </div>
+          <div className="text-xs sm:hidden lg:flex line-through flex items-center w-[60px] flex items-center justify-left font-medium text-orange lg:mr-10 sm:mx-3 sm:text-base text-lg">
+            <p>{`${originalPrice}`}</p>
+          </div>
+        </div>
+        <div
+          className="w-[20px] flex items-center lg:mr-10 sm:mr-5 cursor-pointer"
+          onClick={() => onRemove(courseTitle)} // Call onRemove with courseTitle
+        >
+          <CloseCircleOutlined />
+        </div>
       </div>
     </div>
   );

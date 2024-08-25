@@ -1,11 +1,12 @@
 interface Course {
-  id: number;
+  id: string;
   title: string;
   subcategory_name: string;
-  students_enrolled: number;
+  instructor_name: string;
+  students_enrolled: string;
   average_rating: number;
   sale_price: string;
-  intructor_name: string;
+  original_price: string;
 }
 
 interface CourseDetail {
@@ -35,4 +36,17 @@ interface CourseDetail {
   promotional_program_day_ends: string;
   promotional_program_tier_differences: string[];
   section: string;
+}
+
+
+interface ShoppingCart {
+  map(arg0: (course: { average_rating: any; title: any; instructor_name: any; sale_price: import("decimal.js").default.Value; }) => { star: any; courseTitle: any; instructors: any[]; price: import("decimal.js").default; }): unknown;
+  id: number;
+  title: string;
+  subcategory_name: string;
+  instructor_name: string;
+  students_enrolled: number;
+  average_rating: number;
+  sale_price: string;
+  original_price: string;
 }

@@ -7,11 +7,6 @@ export class ReadShoppingCartController {
     private readonly readShoppingCartService: ReadShoppingCartService,
   ) {}
 
-  @Get()
-  findAll() {
-    return this.readShoppingCartService.findAll();
-  }
-
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.readShoppingCartService.findOne(+id);

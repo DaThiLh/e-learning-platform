@@ -1,26 +1,30 @@
 import { Injectable } from '@nestjs/common';
-import { CreateReadShoppingCartDto } from './dto/create-read_shopping_cart.dto';
-import { UpdateReadShoppingCartDto } from './dto/update-read_shopping_cart.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
+import json, { mapColumnsToKeys } from 'src/utils/helper';
 
 @Injectable()
 export class ReadShoppingCartService {
-  create(createReadShoppingCartDto: CreateReadShoppingCartDto) {
-    return 'This action adds a new readShoppingCart';
-  }
+  constructor(private prismaService: PrismaService) {}
 
-  findAll() {
-    return `This action returns all readShoppingCart`;
-  }
+  async findOne(id: number) {
+    const res: any[] = await this.prismaService
+      .$queryRaw`CALL get_courses_in_cart(
+      ${id});`;
+    const shoppingCart = JSON.parse(json(res));
+    console.log('Shopping cart:', JSON.stringify(shoppingCart, null, 2));
 
-  findOne(id: number) {
-    return `This action returns a #${id} readShoppingCart`;
-  }
+    const columns = [
+      'id',
+      'title',
+      'subcategory_name',
+      'instructor_name',
+      'students_enrolled',
+      'average_rating',
+      'sale_price',
+      'original_price',
+    ];
 
-  update(id: number, updateReadShoppingCartDto: UpdateReadShoppingCartDto) {
-    return `This action updates a #${id} readShoppingCart`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} readShoppingCart`;
+    const newShoppingCart = mapColumnsToKeys(columns, shoppingCart);
+    return newShoppingCart;
   }
 }
