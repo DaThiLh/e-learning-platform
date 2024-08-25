@@ -7,8 +7,7 @@ import Item from "./Item";
 import Decimal from 'decimal.js';
 import s from "./CheckOut.module.scss";
 import { Button } from "antd";
-
-const CheckOut = () => {
+const CheckOut= () => {
   const [courseData, setCourseData] = useState([
     {  courseTitle: "Course 1", instructors: ["Instructor 1", "Instructor 2","Instructor 1", "Instructor 2","Instructor 1", "Instructor 2"], price: new Decimal(49.99) },
     {  courseTitle: "Course 2", instructors: ["Instructor 3", "Instructor 4"], price: new Decimal(39.99) },
@@ -30,6 +29,8 @@ const CheckOut = () => {
     { id: 'card3' }
   ];
 
+
+
   return (
     <div className={cn(s.checkOutContainer, "h-full w-9/12 mx-auto flex flex-row sm:my-5 lg:my-7")}>
       <div className="w-1/2 h-fit ">
@@ -49,6 +50,7 @@ const CheckOut = () => {
         <div className="text-lg font-semibold pl-3 w-full sticky top-0 z-20 bg-white py-1 border-b-2">
           Courses({courseData.length})
         </div>
+        
         <div className="w-full overflow-auto border-b-2 h-auto lg:max-h-[calc(100vh-385px)] xl:max-h-[calc(100vh-380px)] sm:max-h-[calc(100vh-360px)] relative">
           {courseData.map((course, index) => (
             <Item
