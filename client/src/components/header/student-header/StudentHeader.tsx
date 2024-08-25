@@ -1,11 +1,14 @@
+"use client";
 import SearchBar from "./components/Search";
 import Link from "next/link";
 import Image from "next/image";
 import { BellOutlined } from "@ant-design/icons";
+import { useRouter } from "next/navigation";
 
 const InstructorHeader = ({ contentName }: { contentName: string }) => {
   // contentName = "Create a new course";
   const currentTime = new Date();
+  const router = useRouter();
   const currentHour = currentTime.getHours();
 
   let greeting;
@@ -18,7 +21,10 @@ const InstructorHeader = ({ contentName }: { contentName: string }) => {
     greeting = "Good evening!";
   }
   return (
-    <div className="h-fit w-full bg-primary-100 px-8 py-6 bg-white flex justify-between items-center border-b-2	">
+    <div
+      className="h-fit w-full bg-primary-100 px-8 py-6 bg-white flex justify-between items-center border-b-2	cursor-pointer"
+      onClick={() => router.push(`/courselist`)}
+    >
       <div className="container mx-auto flex justify-between items-center">
         <section className="flex flex-col items-start justify-between gap-1">
           <p className="body-medium text-gray-medium">{greeting}</p>
