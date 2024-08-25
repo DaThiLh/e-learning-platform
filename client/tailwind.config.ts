@@ -19,6 +19,7 @@ const config: Config = {
         purple3: "#B3B6F2",
         green: "#62D98B",
         orange: "#FF6636",
+        light_orange:"#FFEEE8",
         gray: {
           dark: "#1D2026",
           medium: "#6E7485",

@@ -46,6 +46,10 @@
   @include btn(theme("colors.white"), theme("colors.orange"));
   border: none;
 }
+@mixin btn-main_2 {
+  @include btn(theme("colors.orange"), theme("colors.light_orange"));
+  border: none;
+}
 @mixin btn-card-with-media {
   @include btn2(theme("colors.white"), theme("colors.orange"));
   @media screen and (max-width: 640px) {
