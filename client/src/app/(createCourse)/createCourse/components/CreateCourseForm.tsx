@@ -48,27 +48,43 @@ const CreateCourseForm = () => {
 		}
 	}
 
-	const handleSubmitForm = () => {
+	const handleSubmitForm = async () => {
 		const basicInformation = window.localStorage.getItem("basicInformation");
 		const advanceInformation = window.localStorage.getItem("advanceInformation");
 		const curriculum = window.localStorage.getItem("curriculumInformation");
 		const publishCourse = window.localStorage.getItem("publishCourse");
 		
-		setCreateForm({
+		const createForm = {
 			basicInformation: basicInformation ? JSON.parse(basicInformation) : {},
 			advanceInformation: advanceInformation ? JSON.parse(advanceInformation) : {},
 			curriculum: curriculum ? JSON.parse(curriculum) : {},
 			publishCourse: publishCourse ? JSON.parse(publishCourse) : {},
-		});
-
+		};
+	
 		console.log("Form Submitted: ", createForm);
-
-		// window.localStorage.removeItem("basicInformation");
-		// window.localStorage.removeItem("advanceInformation");
-		// window.localStorage.removeItem("curriculumInformation");
-		// window.localStorage.removeItem("publishCourse");
-		
-		const removedKey: string[] = [];
+	
+		// Send POST request to the server
+		try {
+			const response = await fetch('http://localhost:5000/modulecourses', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(createForm),
+			});
+	
+			if (!response.ok) {
+				throw new Error('Network response was not ok');
+			}
+	
+			const result = await response.json();
+			console.log('Response from server:', result);
+		} catch (error) {
+			console.error('There was a problem with the fetch operation:', error);
+		}
+	
+		// Cleanup localStorage
+		const removedKey = [];
 		for (let i in localStorage) {
 			if (i.includes(`selectedItemType-`)) {
 				removedKey.push(i);
@@ -77,11 +93,18 @@ const CreateCourseForm = () => {
 				removedKey.push(i);
 			}
 		}
-
+	
 		removedKey.forEach((key) => {
 			localStorage.removeItem(key);
 		});
-	}
+	
+		// Optionally clear other localStorage items
+		window.localStorage.removeItem("basicInformation");
+		window.localStorage.removeItem("advanceInformation");
+		window.localStorage.removeItem("curriculumInformation");
+		window.localStorage.removeItem("publishCourse");
+	};
+	
 	const [activeButton, setActiveButton] = useState("basic-information");
 
 	const handleButtonClick = (key) => {
