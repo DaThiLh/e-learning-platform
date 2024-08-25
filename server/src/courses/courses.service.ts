@@ -39,11 +39,12 @@ export class CoursesService {
   // Service
   async getCoursesByProcedure() {
     const res: any[] = await this.prismaService
-      .$queryRaw`CALL get_courses_for_student()`;
+      .$queryRaw`CALL get_courses_for_student_pagination(1, 20);`;
 
     // console.log(res);
     const courses = JSON.parse(json(res));
 
+    // id ,title, subcategory_name students_enrolled, average_rating, instructor_name
     const columns = [
       'id',
       'title',
@@ -55,7 +56,7 @@ export class CoursesService {
     ];
     const newCourses = mapColumnsToKeys(columns, courses);
     // return res;
-    return { data: newCourses };
+    return newCourses;
     // return res;
   }
 

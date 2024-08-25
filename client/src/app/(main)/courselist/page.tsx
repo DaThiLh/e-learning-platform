@@ -174,15 +174,15 @@ const HomePage = async () => {
     // Fetch data from the API
     const res = await fetch("http://localhost:5000/courses/procedure", {
       method: "GET",
-      headers: { "Content-Type": "application/json" },
+      // headers: { "Content-Type": "application/json" },
     });
 
     if (!res.ok) throw new Error("Failed to fetch courses");
 
-    // Parse and validate the response as JSON
-    const { data }: { data: Course[] } = await res.json();
+    // // Parse and validate the response as JSON
+    const data = await res.json();
 
-    console.log(data);
+    // console.log('a', data);
 
     return (
       <div>
