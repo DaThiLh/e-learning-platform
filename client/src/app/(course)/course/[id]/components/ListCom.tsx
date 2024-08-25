@@ -90,10 +90,6 @@ const ListCom: React.FC<CourseDetailProps> = ({ course }) => {
   const curriculumData = [
     { title: "Getting Started", lectures: "4 Lectures | 51m", key: "1" },
     { title: "Secret of Good Design", lectures: "52 Lectures | 5h 49m", key: "2" },
-    { title: "Practice Design Like an Artist", lectures: "43 Lectures | 53m", key: "3" },
-    { title: "Web Development (Webflow)", lectures: "137 Lectures | 10h 6m", key: "4" },
-    { title: "Secrets of Making Money Freelancing", lectures: "21 Lectures | 38m", key: "5" },
-    { title: "Advanced", lectures: "39 Lectures | 91m", key: "6" }
   ];
   const conicColors: ProgressProps['strokeColor'] = {
     '0%': '#87d068',
@@ -109,22 +105,7 @@ const ListCom: React.FC<CourseDetailProps> = ({ course }) => {
       id: 2,
       learn: "You will learn secret tips of Freelance Web Designers and how they make great money freelancing online.",
     },
-    {
-      id: 3,
-      learn: "Understand how to use both the Jupyter Notebook and create .py files.",
-    },
-    {
-      id: 4,
-      learn: "You will learn how to take your designs and build them into powerful websites using Webflow, a state-of-the-art site builder used by teams at Dell, NASA, and more.",
-    },
-    {
-      id: 5,
-      learn: "Learn to use Python professionally, learning both Python 2 and Python 3!",
-    },
-    {
-      id: 6,
-      learn: "Get an understanding of how to create GUIs in the Jupyter Notebook system!",
-    }
+    
   ];
   
   type RatingCounts = {
@@ -194,10 +175,8 @@ const ListCom: React.FC<CourseDetailProps> = ({ course }) => {
         {activeButton === 'b1' &&
         <div className ="my-5">
           <h1 className ="text-base">Description</h1>
-          <p className ="text-xs">It gives you a huge self-satisfaction when you look at your work and say, "I made this!". I love that feeling after I'm done working on something. When I lean back in my chair, look at the final result with a smile, and have this little "spark joy" moment. It's especially satisfying when I know I just made $5,000.
-            I do! And that's why I got into this field. Not for the love of Web Design, which I do now. But for the LIFESTYLE! There are many ways one can achieve this lifestyle. This is my way. This is how I achieved a lifestyle I've been fantasizing about for five years. And I'm going to teach you the same. Often people think Web Design is complicated. That it needs some creative talent or knack for computers. Sure, a lot of people make it very complicated. People make the simplest things complicated. Like most subjects taught in the universities. But I don't like complicated. I like easy. I like life hacks. I like to take the shortest and simplest route to my destination. I haven't gone to an art school or have a computer science degree. I'm an outsider to this field who hacked himself into it, somehow ending up being a sought-after professional. That's how I'm going to teach you Web Design. So you're not demotivated on your way with needless complexity. So you enjoy the process because it's simple and fun. So you can become a Freelance Web Designer in no time.
-            For example, this is a Design course but I don't teach you Photoshop. Because Photoshop is needlessly complicated for Web Design. But people still teach it to web designers. I don't. I teach Figma – a simple tool that is taking over the design world. You will be designing a complete website within a week while others are still learning how to create basic layouts in Photoshop.
-            Second, this is a Development course. But I don't teach you how to code. Because for Web Design coding is needlessly complicated and takes too long to learn. Instead, I teach Webflow – a tool that is taking over the web design world. You will be building complex websites within two weeks while others are still learning the basics of HTML & CSS. Third, this is a Freelancing course. But I don't just teach you how to write great proposals. I give you a winning proposal template. When you're done with the course, you will have a stunning portfolio website with portfolio pieces already in it. Buy this course now and take it whenever the time is right for you.</p>
+          <p className ="text-xs">{course.course_description}</p>
+          <p className ="text-xs">{}</p>
           <div className="p-5 bg-gray-100 rounded-md my-5">
             <h1 className="font-semibold mb-4 text-base">What you will learn in this course</h1>
             <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 list-none">
@@ -210,7 +189,7 @@ const ListCom: React.FC<CourseDetailProps> = ({ course }) => {
             </ul>
           </div>
           <div >
-            <h1 className="font-semibold mb-4 text-base">What you will learn in this course</h1>
+            <h1 className="font-semibold mb-4 text-base">Course Requirement</h1>
             <ul className="list-disc pl-5">
               {courseFeatures.map((feature) => (
                 <li key={feature.id} className="mb-2 text-xs">
@@ -225,7 +204,7 @@ const ListCom: React.FC<CourseDetailProps> = ({ course }) => {
           <div style={{ maxWidth: '600px', margin: '0 auto' }}>
             <div className ="flex md:flex-row sm:flex-col justify-between"> 
               <h1 className ="md:my-3 sm:mt-4 text-base">Curriculum</h1>
-              <div className ="my-3 text-xs flex items-center">6 Sections | 202 Lectures | 19h 37m</div>
+              <div className ="my-3 text-xs flex items-center">2 Sections | 56 Lectures | 6h 40m</div>
             </div>
             <Collapse accordion>
               {curriculumData.map((item) => (
