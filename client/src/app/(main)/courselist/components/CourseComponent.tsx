@@ -87,7 +87,7 @@ export default function CourseComponent({ courses }: { courses: Course[] }) {
         : [defaultCourse];
 
       setFilteredCourses(coursesToDisplay);
-    }, 300); // Delay of 300ms
+    }, 1000); // Delay of 300ms
   }, [searchQuery, courses]);
 
   return (
@@ -120,7 +120,7 @@ export default function CourseComponent({ courses }: { courses: Course[] }) {
                       {course.subcategoryName}
                     </p>
                     <p className="font-medium text-orange body-2">
-                      200.000đ
+                      199.000đ
                     </p>
                   </div>
                   <h3 className="body-3 font-medium text-gray-dark">
