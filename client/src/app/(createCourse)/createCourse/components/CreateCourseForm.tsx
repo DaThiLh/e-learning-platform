@@ -6,6 +6,7 @@ import BasicInfomationForm from "./BasicInfomationForm";
 import AdvanceInformationForm from "./AdvanceInformationForm";
 import CurriculumForm from "./CurriculumForm";
 import PublishCourseForm from "./PublishCourseForm";
+import { Button } from 'antd';
 
 const items = [
 	{ label: "Basic Information", key: "basic-information" },
@@ -22,7 +23,7 @@ interface CreateFormProps {
 }
 
 const CreateCourseForm = () => {
-	const [selectedKey, setSelectedKey] = useState(items[2]?.key);
+	const [selectedKey, setSelectedKey] = useState(items[0]?.key);
 
 	const [createForm, setCreateForm] = useState<CreateFormProps>({
 		basicInformation: {},
@@ -36,12 +37,14 @@ const CreateCourseForm = () => {
 		if (currentIndex < items.length - 1) {
 			setSelectedKey(items[currentIndex + 1].key);
 		}
+		handleButtonClick(items[currentIndex + 1].key);
 	}
 
 	const handlePreviousButton = () => {
 		const currentIndex = items.findIndex((item) => item.key === selectedKey);
 		if (currentIndex > 0) {
 			setSelectedKey(items[currentIndex - 1].key);
+			handleButtonClick(items[currentIndex - 1].key);
 		}
 	}
 
@@ -79,16 +82,32 @@ const CreateCourseForm = () => {
 			localStorage.removeItem(key);
 		});
 	}
+	const [activeButton, setActiveButton] = useState("basic-information");
 
+	const handleButtonClick = (key) => {
+		setActiveButton(key);
+		// Additional logic for button click
+		setSelectedKey(key);
+	};
 	return (
 		<div className={styles.topNavBarContainer}>
-			<Menu mode="horizontal" items={items} selectedKeys={[selectedKey]}>
-				{
-					items.map((item) => (
-						<Menu.Item key={item.key}>{item.label}</Menu.Item>
-					))
-				}
-			</Menu>
+			<div className="w-full border-b mt-2">
+				{items.map(item => (
+					<Button
+						key={item.key} // Use 'key' from the item
+						type="primary"
+						id={item.key} // Use 'key' for the id
+						className={activeButton === item.key ? 'clicked disabled' : 'disabled'}
+						onClick={() => handleButtonClick(item.key)}	
+						disabled={true}					
+					>
+					{item.label} 
+					</Button>
+				))}
+			</div>
+
+
+
 			{selectedKey === "basic-information" && 
 				<BasicInfomationForm moveToNextForm={() => handleNextButton()} />
 			}

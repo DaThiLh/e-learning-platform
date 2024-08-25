@@ -1,3 +1,3 @@
 export class CreateCoursehighlightDto {
-    courseId: number;
+  courseId: number;
 }

@@ -14,6 +14,7 @@ export class CoursehighlightService {
       ${createCoursehighlightDto.courseId}
     );`;
 
+
     const coursehighlight = JSON.parse(json(res));
 
     const columns = [
