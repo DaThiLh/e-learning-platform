@@ -7,7 +7,9 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class CourseinstructorsService {
   constructor(private prismaService: PrismaService) {}
 
-  async create(createCourseinstructorDto: CreateCourseinstructorDto): Promise<string> {
+  async create(
+    createCourseinstructorDto: CreateCourseinstructorDto,
+  ): Promise<string> {
     try {
       const result = await this.prismaService.$queryRaw<{ result: string }>`
         CALL create_course_instructor(

@@ -20,7 +20,7 @@ export class CourseobjectivesService {
 
     const newCourseObjective = mapColumnsToKeys(columns, courseobjective);
 
-    return {data: newCourseObjective};
+    return newCourseObjective;
   }
 
   findAll() {
