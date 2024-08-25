@@ -31,7 +31,7 @@ export class CoursehighlightService {
 
     const newCoursehighlight = mapColumnsToKeys(columns, coursehighlight);
 
-    return { data: newCoursehighlight };
+    return { data: newCoursehighlight[0] };
   }
 
   // findAll() {

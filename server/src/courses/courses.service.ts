@@ -51,6 +51,7 @@ export class CoursesService {
     const newCourses = mapColumnsToKeys(columns, courses);
 
     return { data: newCourses };
+    // return res;
   }
 
   findOne(id: number) {
