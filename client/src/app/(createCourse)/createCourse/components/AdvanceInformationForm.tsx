@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import HeaderForm from "./HeaderForm";
 import { Form, Input, message, Upload, Button, Typography, Tooltip, Modal } from "antd";
 import { UploadOutlined, PlusOutlined, CloseOutlined, CloseCircleOutlined } from "@ant-design/icons";
@@ -107,7 +107,7 @@ const ObjectifsSection = ({
 
 		setListOfObjectifs([...listOfObjectifsValue, ""]);
 		handleStateChange("objectifs", "", listOfObjectifsValue.length);
-		
+
 	};
 
 	const deleteItemObjectif = (index: number) => {
@@ -118,6 +118,14 @@ const ObjectifsSection = ({
 		handleDeleteItem("objectifs", updatedObjectifs);
 	};
 
+	useEffect(() => {
+		hasDuplicateValue.forEach((value, index) => {
+			if (value) {
+				handleStateChange("objectifs", listOfObjectifsValue[index], index);
+			}
+		}
+		);
+	}, [hasDuplicateValue]);
 
 	return (
 		<Form layout="vertical">
@@ -163,8 +171,8 @@ const ObjectifsSection = ({
 									<CloseCircleOutlined />
 									<span> Objectif must have two items.</span>
 								</> : ""}>
-								<Button 
-									className="buttonDeleteItem" 
+								<Button
+									className="buttonDeleteItem"
 									onClick={() => deleteItemObjectif(index)}
 									disabled={listOfObjectifsValue.length <= 2 && index <= 2}
 								>
@@ -214,7 +222,7 @@ const RequirementsSection = ({
 		const updatedRequirements = listOfRequirementsValue.filter((item, i) => i !== index);
 		setListOfRequirements(updatedRequirements);
 		handleDeleteItem("requirements", updatedRequirements);
-	}
+	};
 
 	return (
 		<Form layout="vertical">
@@ -230,7 +238,7 @@ const RequirementsSection = ({
 				</Button>
 			</div>
 			{listOfRequirementsValue.map((requirement, index) => {
-				const label = index > 9 ? `${index+1}` : `0${index+1}`;
+				const label = index > 9 ? `${index + 1}` : `0${index + 1}`;
 				return (
 					<Form.Item
 						label={label}
@@ -257,8 +265,8 @@ const RequirementsSection = ({
 									<CloseCircleOutlined />
 									<span> Objectif must have two items.</span>
 								</> : ""}>
-								<Button 
-									className="buttonDeleteItem" 
+								<Button
+									className="buttonDeleteItem"
 									onClick={() => deleteItemRequirement(index)}
 									disabled={listOfRequirementsValue.length <= 2 && index <= 2}
 								>
@@ -344,62 +352,54 @@ const AdvanceInformationForm = ({
 	};
 
 	const handleSubmitForm = () => {
-		const newErrors = {
+		// Check for empty fields
+		const emptyErrors = {
 			objectifsError: advanceInformation.objectifs.map((item) => item.trim() === ""),
 			requirementsError: advanceInformation.requirements.map((item) => item.trim() === ""),
 		};
-		setEmptyErrors(newErrors);
 
-		checkDuplicateObjectifs();
-		checkDuplicateRequirements();
+		// Check for duplicates
+		const detectDuplicates = (items: string[]) => {
+			const errors = new Array(items.length).fill(false);
+			for (let i = 0; i < items.length; i++) {
+				for (let j = i + 1; j < items.length; j++) {
+					if (items[i].trim() !== "" && items[i].trim() === items[j].trim()) {
+						errors[i] = true;
+						errors[j] = true;
+					}
+				}
+			}
+			return errors;
+		};
 
-		if (Object.values(newErrors).every((errorArray) => errorArray.every((error) => !error)) && 
-			Object.values(hasSameValue).every((errorArray) => errorArray.every((error: any) => !error)) 
-		) {
-			console.log("Form submitted: ", advanceInformation);
-			moveToNextForm();
-		} else {
-			console.log("Errors: ", newErrors);
+		const objectifsDuplicates = detectDuplicates(advanceInformation.objectifs);
+		const requirementsDuplicates = detectDuplicates(advanceInformation.requirements);
+
+		// Log duplicate detection for debugging
+		console.log('Objectifs duplicates:', objectifsDuplicates);
+		console.log('Requirements duplicates:', requirementsDuplicates);
+
+		// Set state for errors
+		setEmptyErrors(emptyErrors);
+		setHasSameValue({
+			objectifsError: objectifsDuplicates,
+			requirementsError: requirementsDuplicates,
+		});
+
+		// Validate the form
+		const hasErrors =
+			emptyErrors.objectifsError.includes(true) ||
+			emptyErrors.requirementsError.includes(true) ||
+			objectifsDuplicates.includes(true) ||
+			requirementsDuplicates.includes(true);
+
+		if (hasErrors) {
+			return;
 		}
+
+		moveToNextForm();
 	};
 
-	const checkDuplicateObjectifs = () => {
-		const hasValue = new Set<string>();
-		const updatedErrors = [...advanceInformation.objectifs].map(() => false);
-
-		advanceInformation.objectifs.forEach((item, index) => {
-			if (item !== "") {
-				if (hasValue.has(item)) {
-					updatedErrors[index] = true;
-	
-					const indexOfDuplicate = advanceInformation.objectifs.findIndex((value) => value === item && value.trim() !== "");
-					updatedErrors[indexOfDuplicate] = true;
-				}
-				else hasValue.add(item);
-			}
-		});
-
-		setHasSameValue((prevState) => ({ ...prevState, objectifsError: updatedErrors }));
-	};
-
-	const checkDuplicateRequirements = () => { 
-		const hasValue = new Set<string>();
-		const updatedErrors = [...advanceInformation.requirements].map(() => false);
-
-		advanceInformation.requirements.forEach((item, index) => {
-			if (item !== "") {
-				if (hasValue.has(item)) {
-					updatedErrors[index] = true;
-	
-					const indexOfDuplicate = advanceInformation.requirements.findIndex((value) => value === item);
-					updatedErrors[indexOfDuplicate] = true;
-				}
-				else hasValue.add(item);
-			}
-		});
-
-		setHasSameValue((prevState) => ({ ...prevState, requirementsError: updatedErrors }));
-	};
 
 	return (
 		<div className={styles.advanceInformationFormContainer}>
@@ -417,7 +417,7 @@ const AdvanceInformationForm = ({
 			/>
 
 			<hr className="my-2" />
-			<RequirementsSection 
+			<RequirementsSection
 				handleStateChange={(name, value, index) => handleStateChange(name, value, index)}
 				handleDeleteItem={(name, updatedListItems) => handleDeleteItem(name, updatedListItems)}
 				listOfRequirements={advanceInformation.requirements}
@@ -426,17 +426,17 @@ const AdvanceInformationForm = ({
 				handleShowablePopUp={(name) => setShowablePopUp((prevState) => ({ ...prevState, [name]: true }))}
 			/>
 
-			<Modal title="Max 20 items" 
-				open={showablePopUp.objectifs || showablePopUp.requirements} 
-				onOk={() => setShowablePopUp({ objectifs: false, requirements: false })} 
+			<Modal title="Max 20 items"
+				open={showablePopUp.objectifs || showablePopUp.requirements}
+				onOk={() => setShowablePopUp({ objectifs: false, requirements: false })}
 			>
 				{showablePopUp.objectifs && <p>Objectif must have max 20 items.</p>}
 				{showablePopUp.requirements && <p>Requirements must have max 20 items.</p>}
-      </Modal>
+			</Modal>
 			<NavigationButton
 				leftButton="Previous"
 				rightButton="Next"
-				actionLeftButton={()=> moveToPreviousForm()}
+				actionLeftButton={() => moveToPreviousForm()}
 				actionRightButton={handleSubmitForm}
 			/>
 		</div>

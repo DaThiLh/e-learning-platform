@@ -23,7 +23,7 @@ interface CreateFormProps {
 }
 
 const CreateCourseForm = () => {
-	const [selectedKey, setSelectedKey] = useState(items[0]?.key);
+	const [selectedKey, setSelectedKey] = useState(items[3]?.key);
 
 	const [createForm, setCreateForm] = useState<CreateFormProps>({
 		basicInformation: {},
@@ -63,10 +63,10 @@ const CreateCourseForm = () => {
 
 		console.log("Form Submitted: ", createForm);
 
-		window.localStorage.removeItem("basicInformation");
-		window.localStorage.removeItem("advanceInformation");
-		window.localStorage.removeItem("curriculumInformation");
-		window.localStorage.removeItem("publishCourse");
+		// window.localStorage.removeItem("basicInformation");
+		// window.localStorage.removeItem("advanceInformation");
+		// window.localStorage.removeItem("curriculumInformation");
+		// window.localStorage.removeItem("publishCourse");
 		
 		const removedKey: string[] = [];
 		for (let i in localStorage) {

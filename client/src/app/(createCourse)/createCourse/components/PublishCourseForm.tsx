@@ -1,14 +1,14 @@
 'use client';
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import HeaderForm from "./HeaderForm";
 import styles from "./PublishCourseForm.module.scss";
 import { Typography, Form, Select, Button, Tooltip, Modal } from "antd";
-import { CloseOutlined,SettingOutlined } from "@ant-design/icons";
+import { CloseOutlined, SettingOutlined } from "@ant-design/icons";
 import NavigationButton from "./NavigationButton";
 import { Input } from "antd/lib";
 
 const { Title } = Typography;
-  
+
 
 const currencyOptions = [
 	{ value: "USD" },
@@ -56,7 +56,7 @@ const defaultPublishCourse: PublishCourseProps = {
 	currency: currencyOptions[0]?.value,
 	price: priceOptions[0]?.value,
 };
-const PublishCourseForm = ({moveToPreviousForm, handleSubmitForm}: {
+const PublishCourseForm = ({ moveToPreviousForm, handleSubmitForm }: {
 	moveToPreviousForm: () => void;
 	handleSubmitForm: () => void;
 }) => {
@@ -64,17 +64,15 @@ const PublishCourseForm = ({moveToPreviousForm, handleSubmitForm}: {
 	const [showablePopupSubmit, setShowablePopupSubmit] = useState(false);
 	const [publishCourse, setPublishCourse] = useState<PublishCourseProps>(() => {
 		const savedData = window.localStorage.getItem("publishCourse");
-		if(savedData) console.log(JSON.parse(savedData));
+		if (savedData) console.log(JSON.parse(savedData));
 		return savedData
 			? JSON.parse(savedData)
 			: defaultPublishCourse;
 	});
 	useEffect(() => {
 		if (publishCourse.instructors.length !== 0) {
-			// Create a map of instructors for quick lookup
 			const disabledInstructors = new Set(publishCourse.instructors.map(instr => instr.name));
-	
-			// Update available instructors based on the map
+
 			setAvailableInstructors((prev) =>
 				prev.map((instructor) =>
 					disabledInstructors.has(instructor.name)
@@ -84,8 +82,8 @@ const PublishCourseForm = ({moveToPreviousForm, handleSubmitForm}: {
 			);
 		}
 	}, []);
-	
-	
+
+
 	const addInstructor = (instructorName: string) => {
 		console.log("add ");
 		const selectedInstructor = availableInstructors.find(
@@ -100,18 +98,18 @@ const PublishCourseForm = ({moveToPreviousForm, handleSubmitForm}: {
 			const parsedData = JSON.parse(storedData);
 
 			// Check if instructors exist
-			console.log("1: ",parsedData.instructors);
-			if ( parsedData.instructors.length == 0) {
+			console.log("1: ", parsedData.instructors);
+			if (parsedData.instructors.length == 0) {
 				console.log("3");
-			// Print the instructors
+				// Print the instructors
 				setPublishCourse((prev) => {
 					const updatedInstructors = [{ name: "me", role: "Instructor" }];
 					const newState: PublishCourseProps = { ...prev, instructors: updatedInstructors };
 					localStorage.setItem("publishCourse", JSON.stringify(newState));
 					return newState;
-				}); 
+				});
 			}
-		}else{
+		} else {
 			setPublishCourse((prev) => {
 				const updatedInstructors = [{ name: "me", role: "Instructor" }];
 				const newState: PublishCourseProps = { ...prev, instructors: updatedInstructors };
@@ -142,21 +140,17 @@ const PublishCourseForm = ({moveToPreviousForm, handleSubmitForm}: {
 		const storedData = localStorage.getItem("publishCourse");
 
 		if (storedData) {
-			// Parse JSON string into an object
 			const parsedData = JSON.parse(storedData);
 			console.log("hi1");
-			// Check if instructors exist
-			if ( parsedData.instructors.length == 2) {
+			if (parsedData.instructors.length == 2) {
 				console.log("hi");
-			// Print the instructors
 				setPublishCourse((prev) => {
-					// Set instructors to an empty array if that's the desired effect
 					const updatedInstructors: InstructorProps[] = [];
 					const newState: PublishCourseProps = { ...prev, instructors: updatedInstructors };
 					localStorage.setItem("publishCourse", JSON.stringify(newState));
 					return newState;
 				});
-			
+
 			}
 		}
 		setPublishCourse((prev) => {
@@ -170,12 +164,12 @@ const PublishCourseForm = ({moveToPreviousForm, handleSubmitForm}: {
 		});
 
 		setAvailableInstructors((prev) =>
-				prev.map((instr) =>
-					instr.name === instructorName
-						? { ...instr, disabled: false }
-						: instr
-				)
-			);
+			prev.map((instr) =>
+				instr.name === instructorName
+					? { ...instr, disabled: false }
+					: instr
+			)
+		);
 	};
 
 	const handleSetPrice = (value: number) => {
@@ -198,11 +192,11 @@ const PublishCourseForm = ({moveToPreviousForm, handleSubmitForm}: {
 		<div className={styles.publishCourseFormContainer}>
 			<HeaderForm headerName="Publish Course" />
 			<hr className="mb-2" />
-			<SetPriceCard 
-				handleSetPrice={handleSetPrice} 
+			<SetPriceCard
+				handleSetPrice={handleSetPrice}
 				handleSetCurrency={handleSetCurrency}
 			/>
-			
+
 			<br />
 			<AddInstructorCard
 				instructors={publishCourse.instructors}
@@ -211,23 +205,22 @@ const PublishCourseForm = ({moveToPreviousForm, handleSubmitForm}: {
 				removeInstructor={removeInstructor}
 			/>
 			<Modal title="Submit Course"
-				open={showablePopupSubmit} 
-				onOk={() => setShowablePopupSubmit(true)} 
-				onCancel={() => setShowablePopupSubmit(true)}
+				open={showablePopupSubmit}
+				onOk={() => {
+					setShowablePopupSubmit(false);
+					handleSubmitForm();
+				}}
+				onCancel={() => setShowablePopupSubmit(false)}
 				okText="Yes"
 			>
 				<p>Are you sure you want to submit this course?</p>
-				
-      </Modal>
+			</Modal>
 
 			<NavigationButton
 				leftButton="Previous"
 				rightButton="Submit"
 				actionLeftButton={() => moveToPreviousForm()}
-				actionRightButton={() => {
-					handleSubmitForm(); 
-					setShowablePopupSubmit(true);
-				}}
+				actionRightButton={() => setShowablePopupSubmit(true)}
 			/>
 		</div>
 	);
@@ -339,33 +332,33 @@ const AddInstructorCard = ({
 interface NumericInputProps {
 	value: string;
 	onChange: (value: string) => void;
-  }
-  
-  const formatNumber = (value: number) => new Intl.NumberFormat().format(value);
-  
-  const NumericInput = (props: NumericInputProps) => {
+}
+
+const formatNumber = (value: number) => new Intl.NumberFormat().format(value);
+
+const NumericInput = (props: NumericInputProps) => {
 	const { value, onChange } = props;
-  
+
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-	  const { value: inputValue } = e.target;
-	  const reg = /^\d*$/; // Only allows digits
-	  if ((reg.test(inputValue) || inputValue === '') && Number(inputValue) <= 100) {
-		onChange(inputValue);
-	  }
+		const { value: inputValue } = e.target;
+		const reg = /^\d*$/; // Only allows digits
+		if ((reg.test(inputValue) || inputValue === '') && Number(inputValue) <= 100) {
+			onChange(inputValue);
+		}
 	};
-  
+
 	const handleBlur = () => {
-	  let valueTemp = value;
-	  if (value === '') {
-		valueTemp = '1'; // Default to 1 if the input is empty
-	  }
-	  onChange(valueTemp.replace(/0*(\d+)/, '$1'));
+		let valueTemp = value;
+		if (value === '') {
+			valueTemp = '1'; // Default to 1 if the input is empty
+		}
+		onChange(valueTemp.replace(/0*(\d+)/, '$1'));
 	};
-  
+
 	return (
 		<Input
 			{...props}
-			addonAfter={"%"} 
+			addonAfter={"%"}
 			value={value}
 			onChange={handleChange}
 			onBlur={handleBlur}
@@ -373,45 +366,45 @@ interface NumericInputProps {
 			id={"input_percentage"}
 		/>
 	);
-  };
-  
-  const InstructorCard = ({
+};
+
+const InstructorCard = ({
 	username,
 	role,
 	onRemove,
-  }: {
+}: {
 	username: string;
 	role: string;
 	onRemove: () => void;
-  }) => {
+}) => {
 	const [value, setValue] = useState('50'); // Default value within range
-  
+
 	const truncatedName =
-	  username.length > 15 ? `${username.substring(0, 15)}...` : username;
-  
+		username.length > 15 ? `${username.substring(0, 15)}...` : username;
+
 	return (
-	  <div className="flex items-center justify-between bg-slate-100 w-full p-2 rounded-md">
-		<div className="text-xs">
-		  <Tooltip title={username} placement="top">
-			<strong>{truncatedName}</strong>
-		  </Tooltip>
-		  <br />
-		  {role}
-		</div>
-		<div className ="flex flex-row">
-		  <NumericInput  value={value} onChange={setValue} />
-		  	<Button 
-				onClick={onRemove} 
-				type="text" 
-				disabled={username === "me"}
-			>
-				<CloseOutlined />
-			</Button>
+		<div className="flex items-center justify-between bg-slate-100 w-full p-2 rounded-md">
+			<div className="text-xs">
+				<Tooltip title={username} placement="top">
+					<strong>{truncatedName}</strong>
+				</Tooltip>
+				<br />
+				{role}
+			</div>
+			<div className="flex flex-row">
+				<NumericInput value={value} onChange={setValue} />
+				<Button
+					onClick={onRemove}
+					type="text"
+					disabled={username === "me"}
+				>
+					<CloseOutlined />
+				</Button>
+
+			</div>
 
 		</div>
-		
-	  </div>
 	);
-  };
+};
 
 export default PublishCourseForm;
