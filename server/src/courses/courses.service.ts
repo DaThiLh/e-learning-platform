@@ -37,6 +37,8 @@ export class CoursesService {
   async getCoursesByProcedure() {
     const res: any[] = await this.prismaService
       .$queryRaw`CALL get_courses_for_student()`;
+
+      // console.log(res);
     const courses = JSON.parse(json(res));
 
     const columns = [
@@ -49,8 +51,9 @@ export class CoursesService {
       'intructorName',
     ];
     const newCourses = mapColumnsToKeys(columns, courses);
-
+    // return res;
     return { data: newCourses };
+    // return res;
   }
 
   findOne(id: number) {

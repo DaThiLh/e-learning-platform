@@ -14,6 +14,7 @@ export class CoursehighlightService {
       ${createCoursehighlightDto.courseId}
     );`;
 
+
     const coursehighlight = JSON.parse(json(res));
 
     const columns = [
@@ -31,7 +32,7 @@ export class CoursehighlightService {
 
     const newCoursehighlight = mapColumnsToKeys(columns, coursehighlight);
 
-    return { data: newCoursehighlight };
+    return { data: newCoursehighlight[0] };
   }
 
   // findAll() {

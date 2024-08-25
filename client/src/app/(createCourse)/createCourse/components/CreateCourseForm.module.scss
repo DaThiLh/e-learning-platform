@@ -43,5 +43,24 @@
         width: 60vw;
       }
     }
+    #basic-information,#advance-information,#curriculum,#publish-course {
+      margin-left: auto;
+      width: 25%;
+      border-radius: 0;
+      background-color: transparent;
+      color: rgb(69, 57, 57);
+      border-width: 1px;
+      box-shadow: none;
+      &:hover {
+        color: theme("colors.orange");
+      }
+      &.clicked {
+        box-shadow: 0 2px 0 theme("colors.orange");
+        color: theme("colors.orange");
+      }
+      &.disabled {
+        border-color: transparent;
+      }
+    }
   }
 }

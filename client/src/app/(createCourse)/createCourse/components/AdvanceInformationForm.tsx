@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import HeaderForm from "./HeaderForm";
-import { Form, Input, message, Upload, Button, Typography, Tooltip } from "antd";
+import { Form, Input, message, Upload, Button, Typography, Tooltip, Modal } from "antd";
 import { UploadOutlined, PlusOutlined, CloseOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import type { UploadProps } from "antd";
 import styles from "./AdvanceInformationForm.module.scss";
 import NavigationButton from "./NavigationButton";
+import { object, set } from "zod";
 const { Title } = Typography;
 
 interface ErrorState {
@@ -85,18 +86,28 @@ const ObjectifsSection = ({
 	handleStateChange,
 	handleDeleteItem,
 	listOfObjectifs,
-	errors
+	emptyErrors,
+	hasDuplicateValue,
+	handleShowablePopUp
 }: {
 	handleStateChange: (name: keyof advanceInformationProps, value: string, index: number) => void;
 	handleDeleteItem: (name: keyof advanceInformationProps, updatedListItems: string[]) => void;
 	listOfObjectifs: string[];
-	errors: boolean[];
+	emptyErrors: boolean[];
+	hasDuplicateValue: boolean[];
+	handleShowablePopUp: (name: keyof advanceInformationProps) => void;
 }) => {
 	const [listOfObjectifsValue, setListOfObjectifs] = useState(listOfObjectifs);
 
 	const addItemObjectif = () => {
+		if (listOfObjectifsValue.length == 20) {
+			handleShowablePopUp("objectifs");
+			return;
+		}
+
 		setListOfObjectifs([...listOfObjectifsValue, ""]);
 		handleStateChange("objectifs", "", listOfObjectifsValue.length);
+		
 	};
 
 	const deleteItemObjectif = (index: number) => {
@@ -106,6 +117,7 @@ const ObjectifsSection = ({
 		setListOfObjectifs(updatedObjectifs);
 		handleDeleteItem("objectifs", updatedObjectifs);
 	};
+
 
 	return (
 		<Form layout="vertical">
@@ -160,7 +172,8 @@ const ObjectifsSection = ({
 								</Button>
 							</Tooltip>
 						</div>
-						{errors[index] && <span className="error-message">* Objectif is required</span>}
+						{emptyErrors[index] && <span className="error-message">* Objectif is required</span>}
+						{hasDuplicateValue[index] && <span className="error-message">* Objectif must be unique</span>}
 					</Form.Item>
 				);
 			})}
@@ -172,17 +185,25 @@ const RequirementsSection = ({
 	handleStateChange,
 	handleDeleteItem,
 	listOfRequirements,
-	errors
+	emptyErrors,
+	hasDuplicateValue,
+	handleShowablePopUp
 }: {
 	handleStateChange: (name: keyof advanceInformationProps, value: string, index: number) => void;
 	handleDeleteItem: (name: keyof advanceInformationProps, updatedListItems: string[]) => void;
-	listOfRequirements: string[],
-	errors: boolean[]
-}
-) => {
+	listOfRequirements: string[];
+	emptyErrors: boolean[];
+	hasDuplicateValue: boolean[];
+	handleShowablePopUp: (name: keyof advanceInformationProps) => void;
+}) => {
 	const [listOfRequirementsValue, setListOfRequirements] = useState(listOfRequirements);
 
 	const addItemRequirement = () => {
+		if (listOfRequirementsValue.length == 20) {
+			handleShowablePopUp("requirements");
+			return;
+		}
+
 		setListOfRequirements([...listOfRequirementsValue, ""]);
 		handleStateChange("requirements", "", listOfRequirementsValue.length);
 	};
@@ -245,7 +266,8 @@ const RequirementsSection = ({
 								</Button>
 							</Tooltip>
 						</div>
-						{errors[index] && <span className="error-message">* Requirement is required</span>}
+						{emptyErrors[index] && <span className="error-message">* Requirement is required</span>}
+						{hasDuplicateValue[index] && <span className="error-message">* Requirement must be unique</span>}
 					</Form.Item>
 				);
 			})}
@@ -283,9 +305,19 @@ const AdvanceInformationForm = ({
 		return defaultAdvanceInformation;
 	});
 
-	const [errors, setErrors] = useState<ErrorState>({
+	const [emptyErrors, setEmptyErrors] = useState<ErrorState>({
 		objectifsError: [],
 		requirementsError: [],
+	});
+
+	const [hasSameValue, setHasSameValue] = useState<ErrorState>({
+		objectifsError: [],
+		requirementsError: [],
+	});
+
+	const [showablePopUp, setShowablePopUp] = useState({
+		objectifs: false,
+		requirements: false,
 	});
 
 	const handleStateChange = (name: keyof advanceInformationProps, value: string, index: number) => {
@@ -316,16 +348,57 @@ const AdvanceInformationForm = ({
 			objectifsError: advanceInformation.objectifs.map((item) => item.trim() === ""),
 			requirementsError: advanceInformation.requirements.map((item) => item.trim() === ""),
 		};
+		setEmptyErrors(newErrors);
 
-		setErrors(newErrors);
+		checkDuplicateObjectifs();
+		checkDuplicateRequirements();
 
-		if (Object.values(newErrors).every((errorArray) => errorArray.every((error) => !error))) {
-			// convert advanceInformation object to json string
+		if (Object.values(newErrors).every((errorArray) => errorArray.every((error) => !error)) && 
+			Object.values(hasSameValue).every((errorArray) => errorArray.every((error: any) => !error)) 
+		) {
 			console.log("Form submitted: ", advanceInformation);
 			moveToNextForm();
 		} else {
 			console.log("Errors: ", newErrors);
 		}
+	};
+
+	const checkDuplicateObjectifs = () => {
+		const hasValue = new Set<string>();
+		const updatedErrors = [...advanceInformation.objectifs].map(() => false);
+
+		advanceInformation.objectifs.forEach((item, index) => {
+			if (item !== "") {
+				if (hasValue.has(item)) {
+					updatedErrors[index] = true;
+	
+					const indexOfDuplicate = advanceInformation.objectifs.findIndex((value) => value === item && value.trim() !== "");
+					updatedErrors[indexOfDuplicate] = true;
+				}
+				else hasValue.add(item);
+			}
+		});
+
+		setHasSameValue((prevState) => ({ ...prevState, objectifsError: updatedErrors }));
+	};
+
+	const checkDuplicateRequirements = () => { 
+		const hasValue = new Set<string>();
+		const updatedErrors = [...advanceInformation.requirements].map(() => false);
+
+		advanceInformation.requirements.forEach((item, index) => {
+			if (item !== "") {
+				if (hasValue.has(item)) {
+					updatedErrors[index] = true;
+	
+					const indexOfDuplicate = advanceInformation.requirements.findIndex((value) => value === item);
+					updatedErrors[indexOfDuplicate] = true;
+				}
+				else hasValue.add(item);
+			}
+		});
+
+		setHasSameValue((prevState) => ({ ...prevState, requirementsError: updatedErrors }));
 	};
 
 	return (
@@ -338,7 +411,9 @@ const AdvanceInformationForm = ({
 				handleStateChange={(name, value, index) => handleStateChange(name, value, index)}
 				handleDeleteItem={(name, updatedListItems) => handleDeleteItem(name, updatedListItems)}
 				listOfObjectifs={advanceInformation.objectifs}
-				errors={errors.objectifsError}
+				emptyErrors={emptyErrors.objectifsError}
+				hasDuplicateValue={hasSameValue.objectifsError}
+				handleShowablePopUp={(name) => setShowablePopUp((prevState) => ({ ...prevState, [name]: true }))}
 			/>
 
 			<hr className="my-2" />
@@ -346,8 +421,18 @@ const AdvanceInformationForm = ({
 				handleStateChange={(name, value, index) => handleStateChange(name, value, index)}
 				handleDeleteItem={(name, updatedListItems) => handleDeleteItem(name, updatedListItems)}
 				listOfRequirements={advanceInformation.requirements}
-				errors={errors.requirementsError}
+				emptyErrors={emptyErrors.requirementsError}
+				hasDuplicateValue={hasSameValue.requirementsError}
+				handleShowablePopUp={(name) => setShowablePopUp((prevState) => ({ ...prevState, [name]: true }))}
 			/>
+
+			<Modal title="Max 20 items" 
+				open={showablePopUp.objectifs || showablePopUp.requirements} 
+				onOk={() => setShowablePopUp({ objectifs: false, requirements: false })} 
+			>
+				{showablePopUp.objectifs && <p>Objectif must have max 20 items.</p>}
+				{showablePopUp.requirements && <p>Requirements must have max 20 items.</p>}
+      </Modal>
 			<NavigationButton
 				leftButton="Previous"
 				rightButton="Next"

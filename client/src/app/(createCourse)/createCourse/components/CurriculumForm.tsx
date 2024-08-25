@@ -28,6 +28,7 @@ type LectureItemType = {
 	description?: string;
 	resource?: string;
 	caption?: CaptionType[];
+	article: string;
 };
 
 type ItemCardType = {
@@ -53,6 +54,7 @@ interface Lecture_ItemCardProps {
 	setDescriptionValue(value: string): void;
 	setResourceValue(value: string): void;
 	setCaptionValue(value: CaptionType[]): void;
+	setArticleValue(value: string): void;
 }
 
 interface Quiz_ItemCardProps {
@@ -134,6 +136,7 @@ const defaultItemLecture: LectureItemType = {
 	description: "",
 	resource: "",
 	caption: [],
+	article: "",
 };
 
 const defaultCurriculum: CurriculumFormType = {
@@ -239,11 +242,11 @@ const CurriculumForm = ({
 	};
 
 	const handleDeleteSection = (index: number) => {
-		if (sectionsInForm.length < 2) return;	
-		
+		if (sectionsInForm.length < 2) return;
+
 		const newSections = sectionsInForm.filter((_, i) => i !== index);
 		setSections(newSections);
-		
+
 		const CurriculumFrom = localStorage.getItem("curriculumInformation");
 		const curriculum = CurriculumFrom ? JSON.parse(CurriculumFrom) : defaultCurriculum;
 		curriculum.sections = newSections;
@@ -272,9 +275,9 @@ const CurriculumForm = ({
 		const curriculum = CurriculumnInformation ? JSON.parse(CurriculumnInformation) : defaultCurriculum;
 		const updatedSection = curriculum.sections[indexSection];
 
-		setSections(prevSections => 
-			prevSections.map((section, index) => 
-					index === indexSection ? updatedSection : section
+		setSections(prevSections =>
+			prevSections.map((section, index) =>
+				index === indexSection ? updatedSection : section
 			)
 		);
 
@@ -364,7 +367,7 @@ const SectionCard = ({ section, index, onDelete, isLastSection, updatedSection }
 
 	const handleSetTitle = (value: string) => {
 		setTitle(value);
-		
+
 		const CurriculumForm = localStorage.getItem("curriculumInformation");
 		const curriculum = CurriculumForm ? JSON.parse(CurriculumForm) : defaultCurriculum;
 		curriculum.sections[index].title = value;
@@ -378,9 +381,9 @@ const SectionCard = ({ section, index, onDelete, isLastSection, updatedSection }
 		const curriculum = CurriculumInformation ? JSON.parse(CurriculumInformation) : defaultCurriculum;
 		const updatedItems = curriculum.sections[index].items[indexItem];
 
-		setItemsInSection(prevItems => 
-			prevItems.map((item, index) => 
-					index === indexItem ? updatedItems : item
+		setItemsInSection(prevItems =>
+			prevItems.map((item, index) =>
+				index === indexItem ? updatedItems : item
 			)
 		);
 
@@ -480,11 +483,15 @@ const ItemCard = ({ item, indexSection, indexItem, onDelete, isLastItem, updateI
 		updateItem(indexItem);
 	};
 
+	const setArticleValue = (value: string) => {
+
+	}
+
 	const setUrlVideoValue = (value: string) => {
-		setLectureInfo(prevLectureInfo => ({
-			...prevLectureInfo,
-			urlVideo: value
-		}));
+		// setLectureInfo(prevLectureInfo => ({
+		// 	...prevLectureInfo,
+		// 	urlVideo: value
+		// }));
 	};
 
 
@@ -525,12 +532,12 @@ const ItemCard = ({ item, indexSection, indexItem, onDelete, isLastItem, updateI
 		}
 	};
 
-	useEffect(() => {setTitle(item.title)}, [item.title]);
-	useEffect(() => {setDescription(item.description)}, [item.description]);
+	useEffect(() => { setTitle(item.title) }, [item.title]);
+	useEffect(() => { setDescription(item.description) }, [item.description]);
 	useEffect(() => {
 		handleSelectedItemType();
-// eslint-disable-next-line react-hooks/exhaustive-deps
-}, [item.content]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [item.content]);
 
 
 	return (
@@ -648,7 +655,7 @@ const ItemType = ({
 	);
 };
 
-const ItemsInQuizCard = ({indexSection, indexItem, quizzes }: ItemsInQuizCardProps) => {
+const ItemsInQuizCard = ({ indexSection, indexItem, quizzes }: ItemsInQuizCardProps) => {
 	const [listOfQuizs, setQuizs] = useState<QuizItemType[]>([defaultItemQuiz]);
 	const [showableQuizItem, setShowableQuizItem] = useState<boolean>(false);
 	const [saveSuccess, setSaveSuccess] = useState<boolean>(false);
@@ -664,44 +671,44 @@ const ItemsInQuizCard = ({indexSection, indexItem, quizzes }: ItemsInQuizCardPro
 	};
 
 	const saveAllItemsInQuiz = () => {
-    let quizIndex = 0;
+		let quizIndex = 0;
 
-    for (let item of listOfQuizs) {
-        if (item.question === "") {
-            message.error(`Please fill question ${quizIndex + 1}`);
-            return;
-        }
+		for (let item of listOfQuizs) {
+			if (item.question === "") {
+				message.error(`Please fill question ${quizIndex + 1}`);
+				return;
+			}
 
-        let hasCorrectAnswer = false;
-        let answerIndex = 0;
-        for (let answer of item.answer[0]) {
-            if (answer === "") {
-                message.error(`Please fill answer ${answerIndex + 1} in question ${quizIndex + 1}`);
-                return;
-            }
-            if (item.correctAnswer === `answer-${answerIndex}`) {
-                hasCorrectAnswer = true;
-            }
-            answerIndex++;
-        }
+			let hasCorrectAnswer = false;
+			let answerIndex = 0;
+			for (let answer of item.answer[0]) {
+				if (answer === "") {
+					message.error(`Please fill answer ${answerIndex + 1} in question ${quizIndex + 1}`);
+					return;
+				}
+				if (item.correctAnswer === `answer-${answerIndex}`) {
+					hasCorrectAnswer = true;
+				}
+				answerIndex++;
+			}
 
-        if (!hasCorrectAnswer) {
-            message.error(`Please select correct answer in question ${quizIndex + 1}`);
-            return;
-        }
-        quizIndex++;
-    }
+			if (!hasCorrectAnswer) {
+				message.error(`Please select correct answer in question ${quizIndex + 1}`);
+				return;
+			}
+			quizIndex++;
+		}
 
-    message.success("All questions are filled");
-    setSaveSuccess(true);
+		message.success("All questions are filled");
+		setSaveSuccess(true);
 
-    const CurriculumForm = localStorage.getItem("curriculumInformation");
-    const curriculum = CurriculumForm ? JSON.parse(CurriculumForm) : defaultCurriculum;
-    const updatedItems = [...curriculum.sections[indexSection].items];
-    updatedItems[indexItem].content = listOfQuizs;
-    const updatedCurriculum = { ...curriculum, sections: updatedItems };
+		const CurriculumForm = localStorage.getItem("curriculumInformation");
+		const curriculum = CurriculumForm ? JSON.parse(CurriculumForm) : defaultCurriculum;
+		const updatedItems = [...curriculum.sections[indexSection].items];
+		updatedItems[indexItem].content = listOfQuizs;
+		const updatedCurriculum = { ...curriculum, sections: updatedItems };
 
-    localStorage.setItem("curriculumInformation", JSON.stringify(updatedCurriculum));
+		localStorage.setItem("curriculumInformation", JSON.stringify(updatedCurriculum));
 	};
 
 
@@ -941,7 +948,7 @@ const Lecture_TitleCard = ({
 			return;
 		}
 
-		setTitle(title); 
+		setTitle(title);
 		setItemType("lecture");
 	}
 
@@ -1228,18 +1235,38 @@ const ItemInLectureCard = ({
 		}
 	};
 
+	const handleAddArticle = (value: string) => {
+		setLecture((prevLectureInfo) => {
+			const newState = { ...prevLectureInfo, article: value };
+
+			const CurriculumFrom = localStorage.getItem("curriculumInformation");
+			const curriculum = CurriculumFrom ? JSON.parse(CurriculumFrom) : defaultCurriculum;
+			curriculum.sections[indexSection].items[indexItem].content = lecture;
+			localStorage.setItem("curriculumInformation", JSON.stringify(curriculum));
+			setShowableComponent(false);
+			setShowableContentType(false);
+			setSaveSuccess(true);
+
+			return newState;
+		});
+	}
+
 	const handleStateChange = (name: keyof Lecture_ItemCardProps["lectureInfo"], value: string | CaptionType[]) => {
 		setLecture((prevLectureInfo) => {
 			const newState = { ...prevLectureInfo, [name]: value };
 
-			const curriculum = localStorage.getItem("curriculumInformation");
-			const curriculumn = curriculum ? JSON.parse(curriculum) : defaultCurriculum;
-			curriculumn.sections[indexSection].items[indexItem].content = newState;
-			localStorage.setItem("curriculumInformation", JSON.stringify(curriculumn));
+			const CurriculumFrom = localStorage.getItem("curriculumInformation");
+			const curriculum = CurriculumFrom ? JSON.parse(CurriculumFrom) : defaultCurriculum;
+			curriculum.sections[indexSection].items[indexItem].content = newState;
+			localStorage.setItem("curriculumInformation", JSON.stringify(curriculum));
 
 			return newState;
 		});
 	};
+
+	useEffect(() => {
+		setLecture(lectureInfo);
+	}, [lectureInfo]);
 
 	return (
 		<div className={styles.ItemsInLectureContainer}>
@@ -1262,27 +1289,42 @@ const ItemInLectureCard = ({
 				showableComponent && (
 					<div>
 						{selectedContentType === "Video" && (
-							<>
-								<div className="contentVideo">
-									<Title level={5}>Video:</Title>
-									<div className="flex">
-										<Input
-											placeholder="Enter the video URL"
-											value={lecture.urlVideo}
-											onChange={(e) => handleStateChange("urlVideo", e.target.value)}
-											status={errors.urlVideo ? "error" : ""}
-										/>
-										<Button onClick={handleAddUrlVideo}>
-											Submit
-										</Button>
-									</div>
-									{errors.urlVideo && <p style={{ color: 'red' }}>Video URL is required.</p>}
+							<div className="contentVideo">
+								<Title level={5}>Video:</Title>
+								<div className="flex">
+									<Input
+										placeholder="Enter the video URL"
+										value={lecture.urlVideo}
+										onChange={(e) => handleStateChange("urlVideo", e.target.value)}
+										status={errors.urlVideo ? "error" : ""}
+									/>
+									<Button onClick={handleAddUrlVideo}>
+										Submit
+									</Button>
 								</div>
-							</>
+								{errors.urlVideo && <p style={{ color: 'red' }}>Video URL is required.</p>}
+							</div>
 						)}
 						{
 							selectedContentType === "Article" && (
-								<span>hihiarticle</span>
+								<div className="flex flex-col py-4 gap-4">
+									<TextArea
+										onChange={(e) => {
+											const newValue = e.target.value;
+											setLecture((prevLectureInfo) => ({
+												...prevLectureInfo,
+												article: newValue,
+											}));
+										}}
+										placeholder="Enter an article"
+										value={lecture.article}
+									/>
+									<div className="flex justify-end">
+										<Button className="w-fit" onClick={() => handleAddArticle(lecture.article)}>
+											Save
+										</Button>
+									</div>
+								</div>
 							)
 						}
 					</div>
@@ -1380,7 +1422,12 @@ const ItemInLectureCard = ({
 			}
 			{
 				saveSuccess && (
-					<Button onClick={() => setSaveSuccess(false)}>
+					<Button onClick={() => {
+						setSaveSuccess(false);
+						if (selectedContentType === "Article") {
+							setShowableComponent(true);
+						}
+					}}>
 						Edit Lecture
 					</Button>
 				)

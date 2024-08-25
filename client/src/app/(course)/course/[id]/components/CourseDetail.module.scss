@@ -1,0 +1,30 @@
+@import "@styles/mixins.scss";
+.CourseDetailContainer{
+    :global {
+        .container {
+            width: 100%;
+        }
+        .anticon-field-time{
+            color: theme("colors.orange");
+            font-size: 15px;
+        }
+        #add {
+            @include btn-main;
+            margin-left: auto;
+            width: 100%;
+            border-radius: 0px;
+            font-size: 0.7rem;
+            padding: 5px;
+            box-shadow: none;
+        }
+        #buy {
+            @include btn-main_2;
+            margin-left: auto;
+            width: 100%;
+            border-radius: 0px;
+            font-size: 0.7rem;
+            padding: 5px;
+            box-shadow: none;
+        }
+    }
+}

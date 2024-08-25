@@ -1,0 +1,44 @@
+@import "@styles/mixins.scss";
+.ListComContainer {
+  :global {
+    .container {
+      width: 100%;
+    }
+    #b1,
+    #b2,
+    #b3,
+    #b4 {
+      margin-left: auto;
+      width: 25%;
+      border-radius: 0;
+      background-color: transparent;
+      color: rgb(69, 57, 57);
+      border-width: 1px;
+      box-shadow: none;
+      &:hover {
+        color: theme("colors.orange");
+      }
+      &.clicked {
+        box-shadow: 0 2px 0 theme("colors.orange");
+        color: theme("colors.orange");
+      }
+    }
+    .ant-collapse-header-text{
+      height: 100%;
+    }
+    .ant-rate-star {
+      font-size: 12px; /* Adjust the size as needed */
+      align-items: center;
+    }
+    #item_start{
+      width: 100%;
+      flex: 1;
+      flex-direction: row; 
+    }
+    .ant-rate {
+      font-size: 12px; /* Adjust the size as needed */
+      align-items: center;
+    }
+
+  }
+}
