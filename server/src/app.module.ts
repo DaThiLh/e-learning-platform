@@ -9,9 +9,10 @@ import { SectionsModule } from './sections/sections.module';
 import { ItemsModule } from './items/items.module';
 import { LecturesModule } from './lectures/lectures.module';
 import { LecturesubtitlesModule } from './lecturesubtitles/lecturesubtitles.module';
+import { ModulecoursesModule } from './modulecourses/modulecourses.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({}), PrismaModule, CoursesModule, CourseobjectivesModule, CoursehighlightModule, CourseinstructorsModule, SectionsModule, ItemsModule, LecturesModule, LecturesubtitlesModule],
+  imports: [ConfigModule.forRoot({}), PrismaModule, CoursesModule, CourseobjectivesModule, CoursehighlightModule, CourseinstructorsModule, SectionsModule, ItemsModule, LecturesModule, LecturesubtitlesModule, ModulecoursesModule],
   controllers: [],
   providers: [],
 })

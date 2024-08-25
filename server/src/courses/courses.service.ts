@@ -12,7 +12,8 @@ export class CoursesService {
   async createCourse(createCourseDto: CreateCourseDto): Promise<number> {
     let courseId: number;
     // CALL create_course('title', 'subtitle', 'description', 'language', 'requirement', 'image', 1, 1, @course_id);
-    const res = await this.prismaService.$queryRaw`CALL create_course(
+    const res = await this.prismaService.$transaction([
+      this.prismaService.$queryRaw`CALL create_course(
       ${createCourseDto.title},
       ${createCourseDto.subtitle},
       ${createCourseDto.description},
@@ -22,11 +23,13 @@ export class CoursesService {
       ${createCourseDto.tierId},
       ${createCourseDto.subcategoryId},
       @course_id
-    );`;
+    );`,
 
-    courseId = await this.prismaService.$queryRaw`Select @course_id as id;`;
-    courseId = Number(courseId[0].id);
-    return courseId;
+      this.prismaService.$queryRaw`Select @course_id as id;`,
+    ]);
+    console.log(res);
+    courseId = res[1][0].id;
+    return json(courseId);
   }
 
   findAll() {
