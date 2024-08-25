@@ -7,7 +7,6 @@ import s from "./ShoppingCart.module.scss";
 import { Button } from "antd";
 import { cn } from "@/libs/utils";
 import { ArrowRightOutlined } from '@ant-design/icons';
-import { randomInt } from "crypto";
 
 const ShopppingCart = ({
   shoppingCart,
@@ -42,7 +41,7 @@ const ShopppingCart = ({
   useEffect(() => {
     const subtotal = courseData.reduce((acc, course) => acc.plus(course.originalPrice), new Decimal(0));
     const total = courseData.reduce((acc, course) => acc.plus(course.price), new Decimal(0));
-    const couponDiscount = total.toNumber() / subtotal.toNumber() * 100;
+    const couponDiscount = 100 - (total.toNumber() / subtotal.toNumber() * 100);
 
     setSubtotal(subtotal.toNumber());
     setTotal(total.toNumber());
