@@ -1,4 +1,5 @@
 use defaultdb;
+select * from PromotionalProgram;
 
 drop PROCEDURE generate_data_on_promotion_program;
 DELIMITER //
@@ -104,7 +105,9 @@ END //
 
 DELIMITER ;
 
+
 CALL generate_data_on_course();
+drop 
 
 
 -- generate data on CourseHighlight
@@ -118,7 +121,7 @@ BEGIN
   SET totalCourses = (SELECT COUNT(*) FROM Course);
 
   WHILE i <= totalCourses DO 
-    INSERT INTO CourseHighlight (course_id)
+    INSERT INTO CourseHighlight (id)
     VALUES (i);
     SET i = i + 1;      
   END WHILE;
@@ -127,8 +130,10 @@ BEGIN
 END //
 
 DELIMITER ;
+  SELECT * FROM Course;
 
 CALL generate_data_on_course_highlight();
+
 
 -- generate data on Section 
 drop PROCEDURE generate_data_on_section;
