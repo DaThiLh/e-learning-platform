@@ -22,7 +22,7 @@ interface CreateFormProps {
 }
 
 const CreateCourseForm = () => {
-	const [selectedKey, setSelectedKey] = useState(items[0]?.key);
+	const [selectedKey, setSelectedKey] = useState(items[2]?.key);
 
 	const [createForm, setCreateForm] = useState<CreateFormProps>({
 		basicInformation: {},
