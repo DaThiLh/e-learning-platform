@@ -1,6 +1,4 @@
--- use mysql;
 use defaultdb;
-
 
 -- (27) Cập nhật giá bán khóa học.
 drop PROCEDURE update_sale_price_course_highlight;
@@ -1056,23 +1054,25 @@ BEGIN
 
   START TRANSACTION;
 
-  INSERT INTO MonthlyCourseIncome(course_id, date, final_amount)
-  SELECT ec.course_id, DATE_FORMAT(p.date, '%Y-%m-07')
+  delete from MonthlyCourseIncomeVipInstructor where course_id > 0;
+  delete from MonthlyCourseIncome where course_id > 0;
+
+  INSERT INTO MonthlyCourseIncome (course_id, date, final_amount)
+  SELECT 
+    ec.course_id, 
+    DATE_FORMAT(p.date, '%Y-%m-07') AS date,
+    SUM(ec.final_course_price) AS final_amount
   FROM EnrollementCourse ec 
-    JOIN Payment p ON ec.payment_id = p.id
-    JOIN CourseInstructor ci ON ec.course_id = ci.course_id
+  JOIN Payment p ON ec.payment_id = p.id
   GROUP BY ec.course_id, DATE_FORMAT(p.date, '%Y-%m-07')
-  ON DUPLICATE KEY UPDATE final_amount = final_amount + ec.final_course_price;
+  ON DUPLICATE KEY UPDATE final_amount = VALUES(final_amount);
 
   INSERT INTO MonthlyCourseIncomeVipInstructor(course_id, date, vip_instructor_id, revenue)
-  SELECT ec.course_id, DATE_FORMAT(p.date, '%Y-%m-07'), ci.instructor_id, SUM(ec.final_course_price) AS revenue
-  FROM CourseInstructor ci 
-    JOIN EnrollementCourse ec ON ci.course_id = ec.course_id
-    JOIN Payment p ON ec.payment_id = p.id
-    JOIN User u ON ci.instructor_id = u.id
-  WHERE u.role = 'vipinstrutor'
-  GROUP BY ec.course_id, DATE_FORMAT(p.date, '%Y-%m-07'), ci.instructor_id
-  ON DUPLICATE KEY UPDATE revenue = VALUES(revenue);
+  SELECT 
+    mc.course_id, mc.date, ci.instructor_id, mc.final_amount * ci.profit_percent / 100 as revenue
+  FROM MonthlyCourseIncome mc 
+  JOIN CourseInstructor ci on mc.course_id = ci.course_id
+  JOIN VipInstructor vip on ci.instructor_id = vip.vip_instructor_id;
 
   COMMIT;
 

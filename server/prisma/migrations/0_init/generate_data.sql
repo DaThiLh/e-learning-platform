@@ -107,11 +107,8 @@ DELIMITER ;
 
 
 CALL generate_data_on_course();
-drop 
-
 
 -- generate data on CourseHighlight
-drop PROCEDURE generate_data_on_course_highlight;
 DELIMITER //
 
 CREATE PROCEDURE generate_data_on_course_highlight()
@@ -222,3 +219,140 @@ DELIMITER ;
 
 CALL generate_data_on_item();
 
+
+-- table CourseObjective 
+DROP PROCEDURE generate_data_on_course_objective;
+DELIMITER // 
+
+CREATE PROCEDURE generate_data_on_course_objective() 
+BEGIN 
+  DECLARE i INT DEFAULT 1;
+  DECLARE j INT DEFAULT 1;
+  
+  WHILE i <= 10000 DO 
+    WHILE j <= 3 DO 
+      INSERT INTO CourseObjective (course_id, course_objective)
+      VALUES (i, CONCAT('Objective ', j));
+      SET j = j + 1;
+    END WHILE;
+    SET j = 1;
+    SET i = i + 1;
+  END WHILE;  
+
+  SELECT * FROM CourseObjective;
+END //
+
+DELIMITER ;
+
+CALL generate_data_on_course_objective();
+  SELECT * FROM CourseObjective where course_id > 9000;
+
+
+-- update datatable CourseHighlight sale_price 
+
+
+-- -----------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS create_payment_and_enroll;
+DROP PROCEDURE IF EXISTS loop_through_learners;
+
+DELIMITER //
+
+CREATE PROCEDURE create_payment_and_enroll(IN inp_learner_id MEDIUMINT)
+BEGIN
+  DECLARE total_courses INT;
+  DECLARE payment_id INT;
+  DECLARE half_courses INT;
+  DECLARE i INT DEFAULT 1;
+  DECLARE finalPriceCourse MEDIUMINT; 
+  DECLARE c_id MEDIUMINT;
+
+  START TRANSACTION;
+
+  IF NOT EXISTS (SELECT 1 FROM ShoppingCart WHERE learner_id = inp_learner_id) THEN 
+    ROLLBACK;
+    SET payment_id = NULL;
+    SELECT 'Error: The course is not in the cart' AS error_message;
+  ELSE
+    INSERT INTO Payment (learner_id) VALUES (inp_learner_id);
+    SET payment_id = LAST_INSERT_ID(); 
+    COMMIT;
+  END IF;
+
+  SET total_courses = (SELECT COUNT(*) FROM ShoppingCart WHERE learner_id = inp_learner_id);
+  SET half_courses = FLOOR(total_courses / 2);
+  
+  WHILE i <= half_courses DO 
+    SELECT course_id INTO c_id FROM ShoppingCart WHERE learner_id = inp_learner_id LIMIT 1;
+    CALL update_sale_price_course_highlight(c_id);
+    SELECT sale_price INTO finalPriceCourse FROM CourseHighlight WHERE id = c_id;
+
+    INSERT INTO EnrollementCourse (learner_id, course_id, payment_id, final_course_price)
+    VALUES (inp_learner_id, c_id, payment_id, finalPriceCourse);
+
+    DELETE FROM ShoppingCart WHERE learner_id = inp_learner_id AND course_id = c_id;
+
+    UPDATE Payment
+    SET total_price = total_price + finalPriceCourse,
+        total_course = total_course + 1
+    WHERE id = payment_id;
+
+    SET i = i + 1;
+    
+  END WHILE;
+  COMMIT;
+END //
+
+DELIMITER ;
+
+
+-- Define the delimiter for procedure creation
+drop PROCEDURE loop_through_learners;
+DELIMITER //
+
+CREATE PROCEDURE loop_through_learners(max_id INT)
+BEGIN
+  DECLARE i INT DEFAULT 20502;
+  
+  -- Loop from 1 to max_id
+  WHILE i <= max_id DO
+    -- Call the procedure with the current learner_id
+    CALL create_payment_and_enroll(i);
+    
+    -- Increment the learner_id
+    SET i = i + 1;
+  END WHILE;
+END //
+
+-- Reset delimiter
+DELIMITER ;
+
+CALL loop_through_learners (20700);
+delete from Payment where id < 1000;
+alter table Payment auto_increment = 1;
+select * from Payment p join EnrollementCourse e on p.id = e.payment_id where course_id = 1 and learner_id = 26243;
+select * from ShoppingCart order by learner_id;
+select * from Learner order by learner_id desc;
+select * from CourseInstructor where course_id = 1;
+
+select * from MonthlyCourseIncome;
+select * from MonthlyCourseIncomeVipInstructor;
+
+delete from MonthlyCourseIncomeVipInstructor where course_id > 0;
+delete from MonthlyCourseIncome where course_id > 0;
+
+INSERT INTO MonthlyCourseIncome (course_id, date, final_amount)
+SELECT 
+    ec.course_id, 
+    DATE_FORMAT(p.date, '%Y-%m-07') AS date,
+    SUM(ec.final_course_price) AS final_amount
+FROM EnrollementCourse ec 
+JOIN Payment p ON ec.payment_id = p.id
+GROUP BY ec.course_id, DATE_FORMAT(p.date, '%Y-%m-07')
+ON DUPLICATE KEY UPDATE final_amount = VALUES(final_amount);
+
+INSERT INTO MonthlyCourseIncomeVipInstructor(course_id, date, vip_instructor_id, revenue)
+	SELECT 
+		mc.course_id, mc.date, ci.instructor_id, mc.final_amount * ci.profit_percent / 100 as revenue
+	FROM MonthlyCourseIncome mc 
+    JOIN CourseInstructor ci on mc.course_id = ci.course_id
+    JOIN VipInstructor vip on ci.instructor_id = vip.vip_instructor_id;
