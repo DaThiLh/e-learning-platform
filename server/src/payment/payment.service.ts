@@ -1,21 +1,17 @@
-// import { Injectable } from '@nestjs/common';
-// import { CreatePaymentDto } from './dto/create-payment.dto';
-// import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { CreatePaymentDto } from './dto/create-payment.dto';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
+export class PaymentService {
+  constructor(private prismaService: PrismaService) {}
 
-// @Injectable()
-// export class PaymentService {
-//   constructor(private prismaService: PrismaService) {}
-//   async create(createPaymentDto: CreatePaymentDto) {
-//     // let paymentId: number;
-//     // // CALL create_course('title', 'subtitle', 'description', 'language', 'requirement', 'image', 1, 1, @course_id);
-//     // const res = await this.prismaService.$queryRaw`CALL create_payment(
-//     //   1,
-//     //   @payment_id
-//     // );`;
-//     return 'hi';
-//     // courseId = await this.prismaService.$queryRaw`Select @course_id as id;`;
-//     // courseId = Number(courseId[0].id);
-//     // return courseId;
-//   }
-// }
+  async create(createPaymentDto: CreatePaymentDto) {
+    const res = await this.prismaService
+      .$queryRaw`CALL create_payment_and_enrollment(
+      60099,
+      1
+    );`;
+    return res;
+  }
+}

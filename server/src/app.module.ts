@@ -29,6 +29,7 @@ import { ModulecoursesModule } from './modulecourses/modulecourses.module';
     LecturesubtitlesModule,
     ReadShoppingCartModule,
     ModulecoursesModule,
+    PaymentModule,
   ],
   controllers: [],
   providers: [],
