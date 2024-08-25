@@ -1,13 +1,14 @@
 interface Course {
   id: string;
   title: string;
-  subcategory_name: string;
-  instructor_name: string;
-  students_enrolled: string;
-  average_rating: number;
-  sale_price: string;
-  original_price: string;
+  subcategoryName: string;
+  studentsEnrolled: string;
+  averageRating: number;
+  instructorName: string;
+  // sale_price: string;
+  // original_price: string;
 }
+
 
 interface CourseDetail {
   course_id: string;

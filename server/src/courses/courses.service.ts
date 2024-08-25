@@ -51,7 +51,6 @@ export class CoursesService {
       'subcategoryName',
       'studentsEnrolled',
       'averageRating',
-      'salePrice',
       'intructorName',
     ];
     const newCourses = mapColumnsToKeys(columns, courses);

@@ -182,7 +182,7 @@ const HomePage = async () => {
     // // Parse and validate the response as JSON
     const data = await res.json();
 
-    // console.log('a', data);
+    console.log('a', data);
 
     return (
       <div>
