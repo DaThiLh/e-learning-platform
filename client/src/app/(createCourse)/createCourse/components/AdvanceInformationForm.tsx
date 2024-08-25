@@ -320,6 +320,7 @@ const AdvanceInformationForm = ({
 		setErrors(newErrors);
 
 		if (Object.values(newErrors).every((errorArray) => errorArray.every((error) => !error))) {
+			// convert advanceInformation object to json string
 			console.log("Form submitted: ", advanceInformation);
 			moveToNextForm();
 		} else {

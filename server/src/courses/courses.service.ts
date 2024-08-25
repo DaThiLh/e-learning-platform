@@ -9,8 +9,24 @@ import json, { mapColumnsToKeys } from 'src/utils/helper';
 export class CoursesService {
   constructor(private prismaService: PrismaService) {}
 
-  create(createCourseDto: CreateCourseDto) {
-    return 'This action adds a new course';
+  async createCourse(createCourseDto: CreateCourseDto): Promise<number> {
+    let courseId: number;
+    // CALL create_course('title', 'subtitle', 'description', 'language', 'requirement', 'image', 1, 1, @course_id);
+    const res = await this.prismaService.$queryRaw`CALL create_course(
+      ${createCourseDto.title},
+      ${createCourseDto.subtitle},
+      ${createCourseDto.description},
+      ${createCourseDto.language},
+      ${createCourseDto.requirement},
+      ${createCourseDto.image},
+      ${createCourseDto.tierId},
+      ${createCourseDto.subcategoryId},
+      @course_id
+    );`;
+
+    courseId = await this.prismaService.$queryRaw`Select @course_id as id;`;
+    courseId = Number(courseId[0].id);
+    return courseId;
   }
 
   findAll() {
@@ -26,11 +42,11 @@ export class CoursesService {
     const columns = [
       'id',
       'title',
-      'subcategory_name',
-      'students_enrolled',
-      'average_rating',
-      'sale_price',
-      'intructor_name',
+      'subcategoryName',
+      'studentsEnrolled',
+      'averageRating',
+      'salePrice',
+      'intructorName',
     ];
     const newCourses = mapColumnsToKeys(columns, courses);
 
@@ -38,7 +54,11 @@ export class CoursesService {
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} course`;
+    return this.prismaService.course.findUnique({
+      where: {
+        id,
+      },
+    });
   }
 
   update(id: number, updateCourseDto: UpdateCourseDto) {
