@@ -7,12 +7,18 @@ import s from "./ShoppingCart.module.scss";
 import { Button } from "antd";
 import { cn } from "@/libs/utils";
 import { ArrowRightOutlined } from '@ant-design/icons';
+import { useRouter } from 'next/navigation'; // Use this for Next.js 13+ App Router
 
 const ShopppingCart = ({
   shoppingCart,
 }: {
   shoppingCart: Course[];
 }) => {
+  const router = useRouter();
+
+  const handleClick = () => {
+    router.push('/checkout');
+  };
   const [courseData, setCourseData] = useState([
     { star: 5, courseTitle: "Course 1", instructors: ["Instructor 1", "Instructor 2"], price: new Decimal(49), originalPrice: new Decimal(99) },
     { star: 4, courseTitle: "Course 2", instructors: ["Instructor 3", "Instructor 4"], price: new Decimal(39), originalPrice: new Decimal(99) },
@@ -102,7 +108,7 @@ const ShopppingCart = ({
           </Button>
         </div>
         <div className="sm:hidden lg:block pt-2">
-          <Button type="primary" id="checkout" >
+          <Button type="primary" id="checkout" onClick={handleClick}>
             Proceed to checkout
             <ArrowRightOutlined />
           </Button>
