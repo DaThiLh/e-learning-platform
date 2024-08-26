@@ -115,7 +115,7 @@ const CreateCourseForm = () => {
     window.localStorage.removeItem("advanceInformation");
     window.localStorage.removeItem("curriculumInformation");
     window.localStorage.removeItem("publishCourse");
-	window.location.href = `/course/1000`;
+	window.location.href = `/course/100037`;
 
   };
 
